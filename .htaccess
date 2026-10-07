@@ -8,7 +8,7 @@ Options -Indexes
     RewriteEngine On
 
     # Never serve private folders, dotfiles (.env, .git ...) or source/config file types
-    RewriteRule ^(app|config|database|storage)(/|$) - [F,L]
+    RewriteRule ^(app|bin|config|database|storage)(/|$) - [F,L]
     RewriteRule (^|/)\.(?!well-known/) - [F,L]
     RewriteRule \.(env|sql|md|log|ini|lock|sh|yml|yaml)$ - [F,L]
 

@@ -31,9 +31,17 @@ error_reporting(E_ALL);
 ini_set('display_errors', $debug ? '1' : '0');
 ini_set('log_errors', '1');
 ini_set('error_log', BASE_PATH . '/storage/logs/app.log');
+// Keep function arguments (e.g. database passwords) out of exception traces and logs
+ini_set('zend.exception_ignore_args', '1');
 
 set_exception_handler(static function (Throwable $e) use ($debug): void {
     error_log((string) $e);
+
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
+        exit(1);
+    }
+
     http_response_code(500);
 
     echo $debug
@@ -41,13 +49,15 @@ set_exception_handler(static function (Throwable $e) use ($debug): void {
         : view('errors/500', ['title' => 'Something went wrong']);
 });
 
-// Sessions: HttpOnly, SameSite=Lax, Secure when served over HTTPS
-$https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path'     => '/',
-    'secure'   => $https,
-    'httponly' => true,
-    'samesite' => 'Lax',
-]);
-session_start();
+// Sessions (web requests only): HttpOnly, SameSite=Lax, Secure when served over HTTPS
+if (PHP_SAPI !== 'cli') {
+    $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => $https,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
