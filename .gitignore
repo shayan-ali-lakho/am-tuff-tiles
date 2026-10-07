@@ -1,0 +1,18 @@
+# Secrets and local config
+.env
+
+# Logs
+storage/logs/*
+!storage/logs/.gitkeep
+
+# Product images uploaded through the admin panel (kept on the server only)
+public/uploads/*
+!public/uploads/.htaccess
+!public/uploads/.gitkeep
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.zip

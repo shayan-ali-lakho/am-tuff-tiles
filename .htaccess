@@ -1,0 +1,18 @@
+# Root .htaccess
+# Hostinger's Git deploy puts the whole repo in the site folder, so this file
+# keeps private folders unreachable and sends every request to /public.
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Never serve private folders, dotfiles (.env, .git ...) or source/config file types
+    RewriteRule ^(app|config|database|storage)(/|$) - [F,L]
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule \.(env|sql|md|log|ini|lock|sh|yml|yaml)$ - [F,L]
+
+    # Everything else is handled by the public folder
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
