@@ -37,6 +37,19 @@ final class Router
         $path = rawurldecode((string) (parse_url($uri, PHP_URL_PATH) ?: '/'));
         $path = '/' . trim($path, '/');
 
+        // Default-deny rules that apply to every route, so a new page cannot forget them:
+        // 1) every POST must carry a valid CSRF token
+        if ($method === 'POST' && !Csrf::verify($_POST['_token'] ?? null)) {
+            http_response_code(419);
+            echo view('errors/419', ['title' => 'Session expired']);
+            return;
+        }
+
+        // 2) everything under /admin needs a logged-in user whose portal_role is admin
+        if ($path === '/admin' || str_starts_with($path, '/admin/')) {
+            Auth::requireAdmin();
+        }
+
         foreach ($this->routes[$method] ?? [] as [$regex, $handler]) {
             if (preg_match($regex, $path, $matches)) {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);

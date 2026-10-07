@@ -5,6 +5,10 @@
 storage/logs/*
 !storage/logs/.gitkeep
 
+# PHP session files
+storage/sessions/*
+!storage/sessions/.gitkeep
+
 # Product images uploaded through the admin panel (kept on the server only)
 public/uploads/*
 !public/uploads/.htaccess

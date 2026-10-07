@@ -3,6 +3,8 @@
 $siteName = (string) config('app.name');
 $pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : $siteName . ' | Tuff Tiles, Doors, Gates & More';
 $pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates, roof ceilings and more.';
+$currentUser = \App\Core\Auth::user();
+$firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['full_name']))[0] ?? '') : '';
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,11 +37,34 @@ $pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, ga
             <nav id="site-nav" class="site-nav" aria-label="Main">
                 <a href="<?= e(url('/')) ?>"<?= is_active('/') ? ' class="is-active" aria-current="page"' : '' ?>>Home</a>
                 <a href="<?= e(url('/about')) ?>"<?= is_active('/about') ? ' class="is-active" aria-current="page"' : '' ?>>About</a>
+
+                <?php if ($currentUser !== null): ?>
+                    <?php if (($currentUser['portal_role'] ?? '') === 'admin'): ?>
+                        <a href="<?= e(url('/admin')) ?>"<?= is_active('/admin') ? ' class="is-active" aria-current="page"' : '' ?>>Admin</a>
+                    <?php endif; ?>
+                    <span class="nav-user">Hi, <?= e($firstName) ?></span>
+                    <form method="post" action="<?= e(url('/logout')) ?>" class="nav-form">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="nav-link-btn">Log out</button>
+                    </form>
+                <?php else: ?>
+                    <a href="<?= e(url('/login')) ?>"<?= is_active('/login') ? ' class="is-active" aria-current="page"' : '' ?>>Log in</a>
+                    <a class="nav-cta" href="<?= e(url('/register')) ?>">Create account</a>
+                <?php endif; ?>
             </nav>
         </div>
     </header>
 
     <main id="main">
+        <?php foreach (['success' => 'alert-success', 'error' => 'alert-error', 'info' => 'alert-info'] as $type => $alertClass): ?>
+            <?php $flashMessage = flash_get($type); ?>
+            <?php if (is_string($flashMessage) && $flashMessage !== ''): ?>
+                <div class="container flash-wrap">
+                    <div class="alert <?= e($alertClass) ?>" role="<?= $type === 'error' ? 'alert' : 'status' ?>"><?= e($flashMessage) ?></div>
+                </div>
+            <?php endif; ?>
+        <?php endforeach; ?>
+
         <?= $content ?>
     </main>
 

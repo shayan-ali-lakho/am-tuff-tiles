@@ -7,16 +7,19 @@ Plain PHP 8 + MySQL, built to run on Hostinger shared hosting.
 
 ```
 app/            PHP code (not reachable from the web)
-  Controllers/  one class per area of the site
-  Core/         Router, Env loader, Database (PDO)
+  Controllers/  one class per area of the site (Admin/ for the admin panel)
+  Core/         Router, Env loader, Database (PDO), Auth, Csrf
+  Models/       database access (Contact, LoginAttempt)
   Views/        page templates and layouts
   routes.php    URL -> controller map
-bin/            command-line scripts (migrate.php)
+bin/            command-line scripts (migrate.php, create-admin.php)
 config/         settings read from .env
 database/
   migrations/   numbered SQL files applied by bin/migrate.php
 public/         the only web-facing folder: index.php, assets, uploads
-storage/logs/   error log (app.log)
+storage/
+  logs/         error log (app.log)
+  sessions/     PHP session files (private, not in Git)
 .htaccess       sends every request to public/ and blocks private files
 ```
 
@@ -36,7 +39,7 @@ Open http://localhost:8000
 
 Run `php bin/migrate.php` any time: it applies only the migration files that have not run yet and
 records them in `schema_migrations`. To change the database later, add a new numbered file such as
-`database/migrations/003_add_something.sql` instead of editing an old one.
+`database/migrations/004_add_something.sql` instead of editing an old one.
 
 Migration file rules: every statement ends with `;` at the end of a line, no `;` inside text values,
 and statements should be safe to run twice (`CREATE TABLE IF NOT EXISTS`, `INSERT IGNORE`).
@@ -49,8 +52,9 @@ and statements should be safe to run twice (`CREATE TABLE IF NOT EXISTS`, `INSER
 | `product_images` | Several images per product, one marked primary |
 | `orders` | One row per order: customer and delivery details copied at checkout, status, totals, timestamps |
 | `order_items` | Lines of an order with the product name and price at time of purchase |
-| `password_resets` | Hashed reset tokens with expiry |
+| `password_resets` | Hashed reset tokens with expiry (used once password reset by email is built) |
 | `settings` | Shop details and delivery charge, editable by the admin |
+| `login_attempts` | Failed logins, used to slow down password guessing |
 
 Conventions:
 
@@ -60,6 +64,26 @@ Conventions:
 - The database clock is set to the site timezone (`APP_TIMEZONE`, default Asia/Karachi) on every connection.
 - Deleting a product removes its images but keeps old orders readable. Contacts with orders cannot be deleted.
 
+## Accounts and admin access
+
+- Visitors can register at `/register` and log in at `/login`. New accounts are always customers.
+- Everything under `/admin` requires a logged-in user whose `portal_role` is `admin`. The router enforces this
+  for every `/admin` URL, so new admin pages are protected automatically. Guests are sent to the login page,
+  customers get a 403. The role is read from the database on every request, so changing it takes effect at once.
+- Every POST form must include `<?= csrf_field() ?>`. The router rejects any POST without a valid token (419).
+- Passwords are stored with `password_hash` (bcrypt). Login is limited to 5 failed attempts per email and IP
+  address per 15 minutes (plus wider limits per IP and per email).
+- Sessions last 8 hours without activity. Session files are kept in `storage/sessions`.
+
+Make someone an admin (choose one):
+
+1. **phpMyAdmin (no terminal):** the person registers on the site first. Then open phpMyAdmin > your database >
+   `contacts` > Browse, click Edit on their row, set `portal_role` to `admin` and save.
+2. **Command line:** `php bin/create-admin.php` asks for an email (creates the account or promotes an
+   existing one) and for a password, which is typed on the server and never stored in Git.
+
+Not built yet: password reset by email (needs mail sending set up).
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).
@@ -67,18 +91,18 @@ Conventions:
 3. On the server, create a `.env` file in the site folder (same level as `.htaccess`) based on `.env.example`
    with `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://your-domain` and the database details.
    `.env` is never stored in Git.
-4. Connect over SSH, go to the site folder and run `php bin/migrate.php`.
-   (Alternative: import `database/migrations/001_*.sql` then `002_*.sql` in phpMyAdmin; running
-   `bin/migrate.php` afterwards is still safe.)
+4. Create the tables: either connect over SSH, go to the site folder and run `php bin/migrate.php`, or import
+   the migration files from `database/migrations/` in number order in phpMyAdmin (Import tab).
+   Running `bin/migrate.php` afterwards is still safe.
 5. In hPanel set PHP to 8.2 or newer and turn on Force HTTPS.
-6. Pushing to `main` redeploys code. After a deploy that adds migration files, run `php bin/migrate.php` again.
+6. Pushing to `main` redeploys code. After a deploy that adds migration files, apply them as in step 4.
    Uploaded product images in `public/uploads/` are not in Git, so they stay put.
 
 ## Roadmap
 
 - [x] 1. Project skeleton, router, base layout, Home and About
 - [x] 2. Database schema and seed data
-- [ ] 3. Auth: register, login, roles (`portal_role` on `contacts`)
+- [x] 3. Auth: register, login, roles (`portal_role` on `contacts`), protected admin area
 - [ ] 4. Layout polish, full Home and About content
 - [ ] 5. Shop with filters and product page
 - [ ] 6. Cart and checkout (cash on delivery, PKR)

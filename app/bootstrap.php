@@ -49,8 +49,23 @@ set_exception_handler(static function (Throwable $e) use ($debug): void {
         : view('errors/500', ['title' => 'Something went wrong']);
 });
 
-// Sessions (web requests only): HttpOnly, SameSite=Lax, Secure when served over HTTPS
+// Sessions (web requests only): HttpOnly, SameSite=Lax, Secure when served over HTTPS.
+// Session files live in storage/sessions (private to this app) and expire after 8 hours without
+// activity, so the shared host's shorter default cleanup cannot log shoppers out early.
+$GLOBALS['__flash'] = [];
+
 if (PHP_SAPI !== 'cli') {
+    $sessionDir = BASE_PATH . '/storage/sessions';
+    if (is_dir($sessionDir) && is_writable($sessionDir)) {
+        session_save_path($sessionDir);
+    }
+
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.gc_maxlifetime', '28800');
+    ini_set('session.gc_probability', '1');
+    ini_set('session.gc_divisor', '100');
+
     $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     session_set_cookie_params([
         'lifetime' => 0,
@@ -60,4 +75,8 @@ if (PHP_SAPI !== 'cli') {
         'samesite' => 'Lax',
     ]);
     session_start();
+
+    // Messages stored by the previous request are available to this one only.
+    $GLOBALS['__flash'] = is_array($_SESSION['_flash'] ?? null) ? $_SESSION['_flash'] : [];
+    unset($_SESSION['_flash']);
 }
