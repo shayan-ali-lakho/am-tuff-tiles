@@ -15,7 +15,7 @@
 
 <section class="section">
     <div class="container">
-        <ul class="card-grid">
+        <ul class="card-grid card-grid-center">
             <li class="card">
                 <h3>Orders</h3>
                 <?php if ($stats !== null): ?>
