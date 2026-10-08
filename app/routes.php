@@ -37,6 +37,10 @@ $router->get('/register', [AuthController::class, 'showRegister']);
 $router->post('/register', [AuthController::class, 'register']);
 $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
+$router->get('/forgot-password', [AuthController::class, 'showForgot']);
+$router->post('/forgot-password', [AuthController::class, 'forgot']);
+$router->get('/reset-password/{token}', [AuthController::class, 'showReset']);
+$router->post('/reset-password/{token}', [AuthController::class, 'reset']);
 $router->post('/logout', [AuthController::class, 'logout']);
 
 // Admin. The router already requires an admin login for every /admin path.

@@ -32,6 +32,8 @@ $registerUrl = '/register' . ($next !== '/' ? '?next=' . rawurlencode($next) : '
                     <input id="password" name="password" type="password" autocomplete="current-password" required>
                 </div>
 
+                <p class="forgot-link"><a href="<?= e(url('/forgot-password')) ?>">Forgot your password?</a></p>
+
                 <button class="btn btn-primary btn-block" type="submit">Log in</button>
             </form>
 

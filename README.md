@@ -138,6 +138,12 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
   messages are written to `storage/logs/mail.log`.
 - Every page sends a Content-Security-Policy, X-Frame-Options, nosniff and Referrer-Policy, plus HSTS over HTTPS.
 
+## Forgot password
+
+- `/forgot-password` emails a one-hour, single-use link (`/reset-password/{token}`). Only a hash of the token is stored.
+- The page gives the same answer for every email address, so nobody can find out who has an account. Up to 3 links per account per hour.
+- Setting a new password burns all open links for that account.
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).
@@ -161,5 +167,5 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - [x] 5. Shop with filters and product page
 - [x] 6. Cart and checkout (cash on delivery, PKR)
 - [x] 7. Admin panel: products, categories, orders and monthly report
-- [~] 8. Security pass and testing (security headers and order emails done; password reset to do)
+- [x] 8. Security pass: headers, order emails, forgot/reset password
 - [ ] 9. Production deployment checks
