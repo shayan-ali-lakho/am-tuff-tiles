@@ -117,6 +117,10 @@ $hasFilters = $filters['q'] !== '' || $filters['category'] > 0 || $filters['stat
                                     <input type="hidden" name="back" value="<?= e($back) ?>">
                                     <button class="btn btn-secondary btn-sm" type="submit"><?= $active ? 'Hide' : 'Show' ?></button>
                                 </form>
+                                <form method="post" action="<?= e(url('/admin/products/' . (int) $product['id'] . '/delete')) ?>" class="inline-form" data-confirm="Delete &quot;<?= e($product['name']) ?>&quot; and all its photos? This cannot be undone.">
+                                    <?= csrf_field() ?>
+                                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
