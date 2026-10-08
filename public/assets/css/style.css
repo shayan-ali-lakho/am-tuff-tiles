@@ -766,3 +766,23 @@ a:hover { color: var(--accent-strong-hover); }
     .about-media { order: -1; }
     .about-media img { margin: 0; max-width: 100%; aspect-ratio: 16 / 10; }
 }
+
+/* Home hero: round pictures */
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); gap: 2rem; align-items: center; }
+.hero-circles { list-style: none; margin: 0; padding: 0; position: relative; height: 470px; }
+.hero-circle { position: absolute; }
+.hero-circle a { position: relative; display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: var(--charcoal-soft, #323f4b); border: 5px solid rgba(255, 255, 255, 0.92); box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4); }
+.hero-circle img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.hero-circle a:hover img { transform: scale(1.06); }
+.hero-circle-label { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem 0.5rem 0.9rem; text-align: center; color: #fff; font-weight: 600; font-family: var(--font-head); background: linear-gradient(transparent, rgba(0, 0, 0, 0.7)); }
+.hero-circle-1 { width: 240px; height: 240px; top: 0; left: 0; }
+.hero-circle-2 { width: 280px; height: 280px; top: 50px; right: 0; }
+.hero-circle-3 { width: 210px; height: 210px; bottom: 0; left: 50px; }
+@media (max-width: 960px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-circles { height: auto; display: flex; justify-content: center; gap: 0.9rem; margin-top: 1.5rem; }
+    .hero-circles { gap: 0.6rem; }
+    .hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3 { position: static; width: calc((100% - 1.2rem) / 3); max-width: 170px; height: auto; aspect-ratio: 1 / 1; }
+    .hero-circle a { border-width: 3px; }
+    .hero-circle-label { font-size: 0.8rem; padding-top: 1rem; padding-bottom: 0.5rem; }
+}

@@ -2,10 +2,11 @@
 /**
  * @var list<array<string, mixed>> $categories
  * @var list<array<string, mixed>> $featured
+ * @var list<array{label: string, href: string, photo: ?string, fallback: ?string}> $hero
  */
 ?>
 <section class="hero">
-    <div class="container">
+    <div class="container hero-grid">
         <div class="hero-inner">
             <p class="eyebrow">Building products supplier</p>
             <h1>Tuff tiles, doors, gates and roofing, all in one place.</h1>
@@ -18,6 +19,21 @@
                 <a class="btn btn-ghost" href="<?= e(url('/about')) ?>">About us</a>
             </div>
         </div>
+
+        <ul class="hero-circles" aria-label="Product ranges">
+            <?php foreach ($hero as $i => $circle): ?>
+                <li class="hero-circle hero-circle-<?= e($i + 1) ?>">
+                    <a href="<?= e(url($circle['href'])) ?>">
+                        <?php if ($circle['photo'] !== null): ?>
+                            <img src="<?= e(upload_url($circle['photo'], true)) ?>" alt="" width="320" height="320" loading="eager">
+                        <?php elseif ($circle['fallback'] !== null): ?>
+                            <img src="<?= e(asset($circle['fallback'])) ?>" alt="" width="320" height="320" loading="eager">
+                        <?php endif; ?>
+                        <span class="hero-circle-label"><?= e($circle['label']) ?></span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     </div>
 </section>
 

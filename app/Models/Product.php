@@ -182,6 +182,22 @@ final class Product
         return $out;
     }
 
+    /** Primary photo (file path) of the newest visible product in a category, or null. */
+    public static function categoryPhoto(string $categorySlug): ?string
+    {
+        $st = Database::connection()->prepare(
+            'SELECT (SELECT i.file_path FROM product_images i
+                      WHERE i.product_id = p.id
+                      ORDER BY i.is_primary DESC, i.sort_order, i.id LIMIT 1) AS image_path '
+            . self::SHOP_FROM . ' AND c.slug = ? HAVING image_path IS NOT NULL
+             ORDER BY p.is_featured DESC, p.created_at DESC, p.id DESC LIMIT 1'
+        );
+        $st->execute([$categorySlug]);
+        $path = $st->fetchColumn();
+
+        return is_string($path) && $path !== '' ? $path : null;
+    }
+
     /** Other products from the same category, newest first. */
     public static function related(int $categoryId, int $exceptId, int $limit): array
     {
