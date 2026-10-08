@@ -4,6 +4,8 @@ $siteName = (string) config('app.name');
 $phone    = (string) config('shop.phone');
 $email    = (string) config('shop.email');
 $digits   = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
+$facebook = social_url('facebook');
+$instagram = social_url('instagram');
 ?>
 <section class="page-head">
     <div class="container">
@@ -99,6 +101,12 @@ $digits   = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
             <?php endif; ?>
             <?php if ($email !== ''): ?>
                 <a class="btn btn-secondary" href="mailto:<?= e($email) ?>"><?= icon('mail') ?> Email us</a>
+            <?php endif; ?>
+            <?php if ($facebook !== ''): ?>
+                <a class="btn btn-secondary" href="<?= e($facebook) ?>" target="_blank" rel="noopener noreferrer"><?= icon('facebook') ?> Facebook</a>
+            <?php endif; ?>
+            <?php if ($instagram !== ''): ?>
+                <a class="btn btn-secondary" href="<?= e($instagram) ?>" target="_blank" rel="noopener noreferrer"><?= icon('instagram') ?> Instagram</a>
             <?php endif; ?>
         </p>
     </div>

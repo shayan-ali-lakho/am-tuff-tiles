@@ -19,6 +19,8 @@ return [
         'phone'    => Env::get('SHOP_PHONE') ?: '03003715684',
         'whatsapp' => Env::get('SHOP_WHATSAPP') ?: '+923003715684',
         'address'  => Env::get('SHOP_ADDRESS', ''),
+        'facebook'  => Env::get('SHOP_FACEBOOK') ?: 'https://www.facebook.com/p/AM-Tuff-Tiles-61555668119271/',
+        'instagram' => Env::get('SHOP_INSTAGRAM') ?: '',
     ],
 
     'db' => [

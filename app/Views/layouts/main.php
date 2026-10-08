@@ -9,6 +9,8 @@ $cartCount = \App\Models\Cart::count();
 $logo = logo_url();
 $phone = (string) config('shop.phone');
 $whatsappDigits = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
+$facebook = social_url('facebook');
+$instagram = social_url('instagram');
 ?>
 <!doctype html>
 <html lang="en">
@@ -116,6 +118,12 @@ $whatsappDigits = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
                     <?php endif; ?>
                     <?php if (config('shop.email')): ?>
                         <li><?= icon('mail') ?><a href="mailto:<?= e(config('shop.email')) ?>"><?= e(config('shop.email')) ?></a></li>
+                    <?php endif; ?>
+                    <?php if ($facebook !== ''): ?>
+                        <li><?= icon('facebook') ?><a href="<?= e($facebook) ?>" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+                    <?php endif; ?>
+                    <?php if ($instagram !== ''): ?>
+                        <li><?= icon('instagram') ?><a href="<?= e($instagram) ?>" target="_blank" rel="noopener noreferrer">Instagram</a></li>
                     <?php endif; ?>
                     <?php if (config('shop.address')): ?>
                         <li><?= icon('pin') ?><span><?= e(config('shop.address')) ?></span></li>
