@@ -122,7 +122,9 @@ final class CheckoutController
         }
 
         Cart::clear();
-        Order::notify($number);
+        \App\Core\Mailer::sendLater(static function () use ($number): void {
+            Order::notify($number);
+        });
         redirect('/order/' . rawurlencode($number));
     }
 

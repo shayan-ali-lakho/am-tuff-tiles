@@ -173,13 +173,17 @@ final class AuthController
                 $token = PasswordReset::create((int) $contact['id']);
 
                 if ($token !== null) {
-                    Mailer::send(
-                        $email,
-                        'Reset your ' . config('app.name') . ' password',
-                        "Hello " . $contact['full_name'] . ",\n\nSomeone asked to reset the password for your account. To choose a new password open this link within "
-                        . PasswordReset::LIFETIME_MINUTES . " minutes:\n\n" . Mailer::baseUrl() . '/reset-password/' . $token
-                        . "\n\nIf you did not ask for this, you can ignore this email. Your password stays the same.\n\n" . config('app.name') . "\n"
-                    );
+                    $name = (string) $contact['full_name'];
+
+                    Mailer::sendLater(static function () use ($email, $name, $token): void {
+                        Mailer::send(
+                            $email,
+                            'Reset your ' . config('app.name') . ' password',
+                            "Hello " . $name . ",\n\nSomeone asked to reset the password for your account. To choose a new password open this link within "
+                            . PasswordReset::LIFETIME_MINUTES . " minutes:\n\n" . Mailer::baseUrl() . '/reset-password/' . $token
+                            . "\n\nIf you did not ask for this, you can ignore this email. Your password stays the same.\n\n" . config('app.name') . "\n"
+                        );
+                    });
                 }
             }
         }

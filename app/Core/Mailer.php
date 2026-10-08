@@ -12,6 +12,32 @@ use Throwable;
  */
 final class Mailer
 {
+    /**
+     * Send an email AFTER the visitor already has their page. The visitor never waits for the mail server, and the
+     * session file is released first so their next click is not held up either.
+     */
+    public static function sendLater(callable $job): void
+    {
+        register_shutdown_function(static function () use ($job): void {
+            try {
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }
+
+                if (function_exists('fastcgi_finish_request')) {
+                    fastcgi_finish_request();
+                } elseif (function_exists('litespeed_finish_request')) {
+                    litespeed_finish_request();
+                }
+
+                @set_time_limit(25);
+                $job();
+            } catch (Throwable $e) {
+                error_log('Deferred mail job failed: ' . $e->getMessage());
+            }
+        });
+    }
+
     public static function send(string $to, string $subject, string $body, ?string $replyTo = null): bool
     {
         try {

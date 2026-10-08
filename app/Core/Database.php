@@ -39,6 +39,7 @@ final class Database
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_TIMEOUT            => 8, // never wait forever for the database
         ]);
 
         // Make the database clock follow the site's timezone (default Asia/Karachi), so
