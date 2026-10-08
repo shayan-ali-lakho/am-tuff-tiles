@@ -120,7 +120,16 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
   The last unit can never be sold twice.
 - Delivery charge: `settings.delivery_charge_paisa` (0 = free).
 - `/order/{number}` (only the owner can open it) and `/orders` (My orders). Order numbers look like `AM-261008-1A2B3C`.
-- Admin Orders screens and the monthly report come next (step 7).
+
+## Admin: orders and monthly report
+
+- `/admin/orders`: tabs Received (new + confirmed), Completed, Cancelled, All; search by order number, name or phone; 20 per page.
+- Order page: customer, items, totals, timeline and status buttons. Allowed moves: new -> confirmed / completed / cancelled,
+  confirmed -> completed / cancelled. Completed and cancelled orders are final. Cancelling puts the stock back (once).
+- `/admin/reports?month=YYYY-MM`: money earned (completed orders, counted by the day they were completed), orders received
+  (counted by the day they were placed), best sellers, day-by-day table, and a CSV download of the month's completed orders.
+  CSV cells that start with `= + - @` get a leading apostrophe so Excel cannot run them as formulas.
+- The dashboard shows live order, product and this-month numbers.
 
 ## Deploy on Hostinger (Git)
 
@@ -144,6 +153,6 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - [ ] 4. Layout polish, full Home and About content
 - [x] 5. Shop with filters and product page
 - [x] 6. Cart and checkout (cash on delivery, PKR)
-- [ ] 7. Admin panel: products and categories done; orders and monthly report to do
+- [x] 7. Admin panel: products, categories, orders and monthly report
 - [ ] 8. Security pass and testing
 - [ ] 9. Production deployment checks

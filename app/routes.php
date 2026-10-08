@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\DashboardController;
+use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\ProductController;
+use App\Controllers\Admin\ReportController;
 use App\Controllers\AuthController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
@@ -49,6 +51,13 @@ $router->post('/admin/products/{id}/toggle', [ProductController::class, 'toggle'
 $router->post('/admin/products/{id}/delete', [ProductController::class, 'destroy']);
 $router->post('/admin/products/{id}/images/{imageId}/primary', [ProductController::class, 'makePrimary']);
 $router->post('/admin/products/{id}/images/{imageId}/delete', [ProductController::class, 'deleteImage']);
+
+$router->get('/admin/orders', [OrderController::class, 'index']);
+$router->get('/admin/orders/{id}', [OrderController::class, 'show']);
+$router->post('/admin/orders/{id}/status', [OrderController::class, 'status']);
+
+$router->get('/admin/reports', [ReportController::class, 'index']);
+$router->get('/admin/reports/export', [ReportController::class, 'export']);
 
 $router->get('/admin/categories', [CategoryController::class, 'index']);
 $router->post('/admin/categories', [CategoryController::class, 'store']);
