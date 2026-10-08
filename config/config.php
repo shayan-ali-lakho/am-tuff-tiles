@@ -16,8 +16,8 @@ return [
     'shop' => [
         'currency' => 'PKR',
         'email'    => Env::get('SHOP_EMAIL', 'tufftilesam@gmail.com'),
-        'phone'    => Env::get('SHOP_PHONE', ''),
-        'whatsapp' => Env::get('SHOP_WHATSAPP', ''),
+        'phone'    => Env::get('SHOP_PHONE') ?: '03003715684',
+        'whatsapp' => Env::get('SHOP_WHATSAPP') ?: '+923003715684',
         'address'  => Env::get('SHOP_ADDRESS', ''),
     ],
 

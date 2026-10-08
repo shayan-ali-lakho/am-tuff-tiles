@@ -6,6 +6,9 @@ $pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, ga
 $currentUser = \App\Core\Auth::user();
 $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['full_name']))[0] ?? '') : '';
 $cartCount = \App\Models\Cart::count();
+$logo = logo_url();
+$phone = (string) config('shop.phone');
+$whatsappDigits = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
 ?>
 <!doctype html>
 <html lang="en">
@@ -28,8 +31,13 @@ $cartCount = \App\Models\Cart::count();
     <header class="site-header">
         <div class="container header-inner">
             <a class="brand" href="<?= e(url('/')) ?>">
-                <span class="brand-mark" aria-hidden="true">AM</span>
-                <span class="brand-name"><?= e($siteName) ?></span>
+                <?php if ($logo !== null): ?>
+                    <img class="brand-logo" src="<?= e($logo) ?>" alt="" height="44">
+                    <span class="sr-only"><?= e($siteName) ?></span>
+                <?php else: ?>
+                    <span class="brand-mark" aria-hidden="true">AM</span>
+                    <span class="brand-name"><?= e($siteName) ?></span>
+                <?php endif; ?>
             </a>
 
             <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
@@ -75,25 +83,49 @@ $cartCount = \App\Models\Cart::count();
 
     <footer class="site-footer">
         <div class="container footer-inner">
-            <div>
+            <div class="footer-col">
                 <p class="footer-brand"><?= e($siteName) ?></p>
                 <p class="footer-muted">Tuff tiles, doors, gardens, metal gates, roof ceilings and more.</p>
             </div>
-            <div>
+
+            <nav class="footer-col" aria-label="Footer">
+                <p class="footer-heading">Quick links</p>
+                <ul class="footer-links">
+                    <li><a href="<?= e(url('/')) ?>">Home</a></li>
+                    <li><a href="<?= e(url('/shop')) ?>">Shop</a></li>
+                    <li><a href="<?= e(url('/cart')) ?>">Cart</a></li>
+                    <li><a href="<?= e(url('/about')) ?>">About</a></li>
+                    <?php if ($currentUser !== null): ?>
+                        <li><a href="<?= e(url('/orders')) ?>">My orders</a></li>
+                    <?php else: ?>
+                        <li><a href="<?= e(url('/login')) ?>">Log in</a></li>
+                        <li><a href="<?= e(url('/register')) ?>">Create account</a></li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+
+            <div class="footer-col">
                 <p class="footer-heading">Contact</p>
-                <?php if (config('shop.email')): ?>
-                    <p><a href="mailto:<?= e(config('shop.email')) ?>"><?= e(config('shop.email')) ?></a></p>
-                <?php endif; ?>
-                <?php if (config('shop.phone')): ?>
-                    <p><a href="tel:<?= e(config('shop.phone')) ?>"><?= e(config('shop.phone')) ?></a></p>
-                <?php endif; ?>
-                <?php if (config('shop.address')): ?>
-                    <p><?= e(config('shop.address')) ?></p>
-                <?php endif; ?>
+                <ul class="footer-contact">
+                    <?php if ($phone !== ''): ?>
+                        <li><?= icon('phone') ?><a href="tel:<?= e(preg_replace('/[^0-9+]/', '', $phone)) ?>"><?= e($phone) ?></a></li>
+                    <?php endif; ?>
+                    <?php if ($whatsappDigits !== ''): ?>
+                        <li><?= icon('whatsapp') ?><a href="https://wa.me/<?= e($whatsappDigits) ?>" target="_blank" rel="noopener">WhatsApp us</a></li>
+                    <?php endif; ?>
+                    <?php if (config('shop.email')): ?>
+                        <li><?= icon('mail') ?><a href="mailto:<?= e(config('shop.email')) ?>"><?= e(config('shop.email')) ?></a></li>
+                    <?php endif; ?>
+                    <?php if (config('shop.address')): ?>
+                        <li><?= icon('pin') ?><span><?= e(config('shop.address')) ?></span></li>
+                    <?php endif; ?>
+                </ul>
             </div>
         </div>
-        <div class="container footer-bottom">
-            <p>&copy; <?= e(date('Y')) ?> <?= e($siteName) ?>. All rights reserved.</p>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; <?= e(date('Y')) ?> <?= e($siteName) ?>. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 

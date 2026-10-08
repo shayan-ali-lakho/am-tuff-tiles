@@ -216,3 +216,32 @@ function view(string $name, array $data = [], ?string $layout = 'layouts/main'):
 
     return $render(BASE_PATH . '/app/Views/' . $layout . '.php', $data + ['content' => $content]);
 }
+
+
+/** Small inline icons (no external files). Returns SVG markup; the icon is decorative. */
+function icon(string $name): string
+{
+    $paths = [
+        'mail'     => '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+        'phone'    => '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+        'whatsapp' => '<path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/>',
+        'pin'      => '<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    ];
+
+    return '<svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+        . ($paths[$name] ?? '') . '</svg>';
+}
+
+/** URL of the shop logo if a file public/assets/img/logo.(svg|png|webp|jpg) exists, otherwise null. */
+function logo_url(): ?string
+{
+    foreach (['svg', 'png', 'webp', 'jpg', 'jpeg'] as $ext) {
+        $file = dirname(__DIR__) . '/public/assets/img/logo.' . $ext;
+
+        if (is_file($file)) {
+            return asset('img/logo.' . $ext) . '?v=' . filemtime($file);
+        }
+    }
+
+    return null;
+}
