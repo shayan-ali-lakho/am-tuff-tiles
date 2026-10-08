@@ -19,7 +19,7 @@
 
     --radius: 12px;
     --shadow: 0 6px 24px rgba(31, 41, 51, 0.08);
-    --container: 1160px;
+    --container: 1680px;
 }
 
 *,
@@ -71,7 +71,7 @@ a:hover { color: var(--accent-strong-hover); }
     width: 100%;
     max-width: var(--container);
     margin: 0 auto;
-    padding: 0 1.25rem;
+    padding: 0 clamp(1rem, 3vw, 2.5rem);
 }
 
 .skip-link {
@@ -250,7 +250,9 @@ a:hover { color: var(--accent-strong-hover); }
 }
 .page-head h1 { margin: 0; color: #fff; }
 
-.prose { max-width: 720px; font-size: 1.05rem; }
+.container.prose { max-width: var(--container); }
+.prose { font-size: 1.05rem; }
+.prose > :not(img) { max-width: 760px; }
 
 .message-page { text-align: center; }
 .message-page .btn { margin-top: 0.5rem; }
