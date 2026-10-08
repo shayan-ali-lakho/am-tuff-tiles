@@ -198,6 +198,14 @@ final class Product
         return is_string($path) && $path !== '' ? $path : null;
     }
 
+    /** Slug and last change of every product that is for sale, for the sitemap. */
+    public static function sitemapRows(int $limit = 5000): array
+    {
+        return Database::connection()->query(
+            'SELECT p.slug, p.updated_at ' . self::SHOP_FROM . ' ORDER BY p.id LIMIT ' . max(1, $limit)
+        )->fetchAll();
+    }
+
     /** Other products from the same category, newest first. */
     public static function related(int $categoryId, int $exceptId, int $limit): array
     {

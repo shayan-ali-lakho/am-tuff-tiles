@@ -150,6 +150,17 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - Safe by design: nobody can remove their own admin access, the shop always keeps at least one admin, and a turned-off account cannot be made admin.
   Role changes take effect on the person's next click (no re-login needed).
 
+## SEO
+
+- Every page has a title, description, canonical address, Open Graph / Twitter share tags and one h1.
+- Structured data (JSON-LD): the shop as a business (Home, About), each product (price in PKR, stock) and breadcrumbs.
+- `/sitemap.xml` is built from the database (home, shop, categories with products, every visible product). `/robots.txt` hides
+  private areas and points to the sitemap.
+- Private pages (admin, login, cart, checkout, orders, errors) send `noindex`. Shop searches, sorts and extra filters are also
+  `noindex, follow` and point their canonical to the plain category page, so Google lists one clean page per category.
+- `SITE_NOINDEX=true` in `.env` hides the whole site from search engines (handy while testing); remove it to go live.
+- Speed: gzip and long browser caching for images, CSS and JS (CSS/JS links change with every deploy).
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).

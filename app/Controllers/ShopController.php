@@ -63,11 +63,30 @@ final class ShopController
             }
         }
 
+        // Search engines: the plain shop and each category page are listed. Any other filter, search or sort is a
+        // duplicate view of the same products, so it is kept out of search results (links on it are still followed).
+        $base = $categorySlug !== '' ? '/shop?category=' . rawurlencode($categorySlug) : '/shop';
+        $extraFilters = $filters['q'] !== '' || $filters['min'] !== null || $filters['max'] !== null || $filters['size'] !== ''
+            || $filters['material'] !== '' || $filters['instock'] || $sort !== 'newest';
+
+        if ($extraFilters) {
+            seo_noindex(true);
+            seo(['canonical' => site_url() . $base]);
+        } else {
+            seo(['canonical' => site_url() . $base . ($page > 1 ? ($categorySlug !== '' ? '&' : '?') . 'page=' . $page : '')]);
+        }
+
+        if ($page > 1 && !$extraFilters) {
+            $pageNote = ' - Page ' . $page;
+        } else {
+            $pageNote = '';
+        }
+
         echo view('shop/index', [
-            'title'          => $activeCategory !== null ? $activeCategory['name'] : 'Shop',
+            'title'          => ($activeCategory !== null ? 'Buy ' . $activeCategory['name'] . ' Online' : 'Shop Tuff Tiles, Doors, Gates & More') . $pageNote,
             'description'    => $activeCategory !== null
-                ? 'Buy ' . $activeCategory['name'] . ' from AM Tuff Tiles.'
-                : 'Browse tuff tiles, doors, garden products, metal gates, roof ceilings and more from AM Tuff Tiles.',
+                ? 'Buy ' . $activeCategory['name'] . ' from AM Tuff Tiles. See sizes and prices in PKR and order online with cash on delivery.'
+                : 'Browse tuff tiles, doors, garden products, metal gates, roof ceilings and more from AM Tuff Tiles. Prices in PKR, cash on delivery.',
             'products'       => Product::shopSearch($filters, $sort, self::PER_PAGE, ($page - 1) * self::PER_PAGE),
             'categories'     => $categories,
             'options'        => $options,
@@ -93,11 +112,59 @@ final class ShopController
             $description = mb_substr(trim((string) preg_replace('/\s+/', ' ', (string) ($product['description'] ?? ''))), 0, 160);
         }
 
+        $images = ProductImage::forProduct((int) $product['id']);
+        $site   = site_url();
+        $url    = $site . '/product/' . $product['slug'];
+        $stock  = (int) $product['stock_qty'];
+
+        $schema = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'Product',
+            'name'        => (string) $product['name'],
+            'description' => $description !== '' ? $description : (string) $product['name'],
+            'sku'         => 'AM-' . $product['id'],
+            'category'    => (string) $product['category_name'],
+            'brand'       => ['@type' => 'Brand', 'name' => (string) config('app.name')],
+            'url'         => $url,
+            'offers'      => [
+                '@type'           => 'Offer',
+                'url'             => $url,
+                'priceCurrency'   => 'PKR',
+                'price'           => number_format((int) $product['price_paisa'] / 100, 2, '.', ''),
+                'availability'    => $stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'itemCondition'   => 'https://schema.org/NewCondition',
+                'seller'          => ['@type' => 'Organization', 'name' => (string) config('app.name')],
+            ],
+        ];
+        if ((string) ($product['material'] ?? '') !== '') {
+            $schema['material'] = (string) $product['material'];
+        }
+        if ($images !== []) {
+            $schema['image'] = array_map(static fn (array $i): string => $site . upload_url((string) $i['file_path']), array_slice($images, 0, 5));
+        }
+
+        seo([
+            'canonical' => $url,
+            'type'      => 'product',
+            'image'     => $images !== [] ? $site . upload_url((string) $images[0]['file_path']) : null,
+            'jsonld'    => [
+                $schema,
+                breadcrumb_schema([
+                    'Home' => '/', 'Shop' => '/shop',
+                    (string) $product['category_name'] => '/shop?category=' . rawurlencode((string) $product['category_slug']),
+                    (string) $product['name'] => '/product/' . $product['slug'],
+                ]),
+            ],
+        ]);
+        if ($images === []) {
+            seo(['image' => $site . asset_path('img/og-default.jpg')]);
+        }
+
         echo view('shop/show', [
-            'title'       => $product['name'],
+            'title'       => $product['name'] . ' - ' . $product['category_name'],
             'description' => $description !== '' ? $description : $product['name'] . ' from AM Tuff Tiles.',
             'product'     => $product,
-            'images'      => ProductImage::forProduct((int) $product['id']),
+            'images'      => $images,
             'related'     => Product::related((int) $product['category_id'], (int) $product['id'], 4),
         ]);
     }

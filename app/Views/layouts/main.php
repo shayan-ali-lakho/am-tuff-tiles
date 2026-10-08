@@ -1,8 +1,12 @@
 <?php
 /** @var string $content */
 $siteName = (string) config('app.name');
-$pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : $siteName . ' | Tuff Tiles, Doors, Gates & More';
-$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates, roof ceilings and more.';
+$pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : 'Tuff Tiles, Doors & Metal Gates in Karachi | ' . $siteName;
+$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates and roof ceilings. Browse prices in PKR and order online with cash on delivery.';
+$seo = seo();
+$canonical = (string) ($seo['canonical'] ?? (site_url() . (current_path() === '/' ? '/' : current_path())));
+$ogImage = (string) ($seo['image'] ?? (site_url() . asset_path('img/og-default.jpg')));
+$ogType = (string) ($seo['type'] ?? 'website');
 $currentUser = \App\Core\Auth::user();
 $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['full_name']))[0] ?? '') : '';
 $cartCount = \App\Models\Cart::count();
@@ -20,6 +24,24 @@ $instagram = social_url('instagram');
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($pageDescription) ?>">
     <meta name="theme-color" content="#1F2933">
+    <?php if (!empty($seo['robots'])): ?><meta name="robots" content="<?= e($seo['robots']) ?>">
+    <?php else: ?><meta name="robots" content="index, follow, max-image-preview:large">
+    <?php endif; ?>
+    <link rel="canonical" href="<?= e($canonical) ?>">
+    <meta property="og:site_name" content="<?= e($siteName) ?>">
+    <meta property="og:type" content="<?= e($ogType) ?>">
+    <meta property="og:title" content="<?= e($pageTitle) ?>">
+    <meta property="og:description" content="<?= e($pageDescription) ?>">
+    <meta property="og:url" content="<?= e($canonical) ?>">
+    <meta property="og:image" content="<?= e($ogImage) ?>">
+    <meta property="og:locale" content="en_PK">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= e($pageTitle) ?>">
+    <meta name="twitter:description" content="<?= e($pageDescription) ?>">
+    <meta name="twitter:image" content="<?= e($ogImage) ?>">
+    <?php foreach ($seo['jsonld'] ?? [] as $schema): ?>
+    <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
+    <?php endforeach; ?>
     <link rel="icon" type="image/png" href="<?= e(asset('img/favicon.png')) ?>">
     <script>document.documentElement.className += ' js';</script>
 

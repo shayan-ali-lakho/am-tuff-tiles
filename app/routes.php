@@ -13,6 +13,7 @@ use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\HomeController;
 use App\Controllers\PageController;
+use App\Controllers\SeoController;
 use App\Controllers\ShopController;
 
 /** @var App\Core\Router $router */
@@ -32,6 +33,10 @@ $router->get('/checkout', [CheckoutController::class, 'show']);
 $router->post('/checkout', [CheckoutController::class, 'place']);
 $router->get('/order/{number}', [CheckoutController::class, 'confirmation']);
 $router->get('/orders', [CheckoutController::class, 'orders']);
+
+// Search engines
+$router->get('/robots.txt', [SeoController::class, 'robots']);
+$router->get('/sitemap.xml', [SeoController::class, 'sitemap']);
 
 // Accounts
 $router->get('/register', [AuthController::class, 'showRegister']);

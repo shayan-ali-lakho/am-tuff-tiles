@@ -26,6 +26,8 @@ final class PageController
             ];
         }
 
+        seo(['jsonld' => [business_schema()]]);
+
         echo view('about', [
             'title'       => 'About us',
             'description' => 'About AM Tuff Tiles: tuff tiles, doors, garden products, metal gates, roof ceilings and more, with cash on delivery.',

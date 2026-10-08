@@ -85,6 +85,13 @@ if (PHP_SAPI !== 'cli') {
     ]);
     session_start();
 
+    // Search engines: never list private pages; SITE_NOINDEX=true hides the whole site (useful while testing)
+    if (\App\Core\Env::get('SITE_NOINDEX', false) === true) {
+        seo_noindex(false);
+    } elseif (seo_is_private_path(current_path())) {
+        seo_noindex(false);
+    }
+
     // Messages stored by the previous request are available to this one only.
     $GLOBALS['__flash'] = is_array($_SESSION['_flash'] ?? null) ? $_SESSION['_flash'] : [];
     unset($_SESSION['_flash']);

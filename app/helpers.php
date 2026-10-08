@@ -83,6 +83,7 @@ function redirect(string $path, int $status = 302): never
 /** Stop with the standard 403 or 404 page. */
 function abort(int $status): never
 {
+    seo_noindex(false);
     http_response_code($status);
     echo view('errors/' . $status, ['title' => $status === 403 ? 'Access denied' : 'Page not found']);
     exit;
@@ -288,4 +289,113 @@ function map_link_url(): string
     $query = trim((string) config('shop.map_query'));
 
     return $query !== '' ? 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(mb_substr($query, 0, 200)) : '';
+}
+
+
+// ----------------------------------------------------------------------
+// SEO
+// ----------------------------------------------------------------------
+
+/** Public address of the site, e.g. https://amtufftiles.com (works even if APP_URL is typed slightly wrong). */
+function site_url(): string
+{
+    return \App\Core\Mailer::baseUrl();
+}
+
+/**
+ * Collects search-engine details for the current page. Call seo([...]) before rendering to set
+ * canonical, robots, image, type and jsonld (a list of structured-data arrays); call seo() to read them.
+ *
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
+ */
+function seo(array $data = []): array
+{
+    static $store = ['jsonld' => []];
+
+    if (isset($data['jsonld'])) {
+        $store['jsonld'] = array_merge($store['jsonld'], (array) $data['jsonld']);
+        unset($data['jsonld']);
+    }
+
+    $store = array_merge($store, $data);
+
+    return $store;
+}
+
+/** Tell search engines not to list this page (also sent as a header so it works for every kind of page). */
+function seo_noindex(bool $follow = true): void
+{
+    $value = $follow ? 'noindex, follow' : 'noindex, nofollow';
+    seo(['robots' => $value]);
+
+    if (!headers_sent()) {
+        header('X-Robots-Tag: ' . $value);
+    }
+}
+
+/** Pages that must never appear in search results (accounts, cart, checkout, admin). */
+function seo_is_private_path(string $path): bool
+{
+    foreach (['/admin', '/login', '/register', '/forgot-password', '/reset-password', '/cart', '/checkout', '/order', '/orders'] as $prefix) {
+        if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/** Structured data describing the shop itself (shown by Google as a business). */
+function business_schema(): array
+{
+    $site = site_url();
+    $data = [
+        '@context'           => 'https://schema.org',
+        '@type'              => 'Store',
+        '@id'                => $site . '/#business',
+        'name'               => (string) config('app.name'),
+        'alternateName'      => 'Abdul Manan Tiles',
+        'url'                => $site . '/',
+        'logo'               => $site . asset_path('img/logo.png'),
+        'image'              => $site . asset_path('img/og-default.jpg'),
+        'description'        => 'Tuff tiles, doors, garden products, metal gates, roof ceilings and more. Prices in PKR, cash on delivery.',
+        'currenciesAccepted' => 'PKR',
+        'paymentAccepted'    => 'Cash on delivery',
+        'address'            => ['@type' => 'PostalAddress', 'addressLocality' => 'Karachi', 'addressCountry' => 'PK'],
+        'geo'                => ['@type' => 'GeoCoordinates', 'latitude' => 24.917186842983497, 'longitude' => 66.96014607642219],
+    ];
+
+    if ((string) config('shop.phone') !== '') {
+        $data['telephone'] = '+92' . ltrim(preg_replace('/\D+/', '', (string) config('shop.phone')) ?? '', '0');
+    }
+    if ((string) config('shop.email') !== '') {
+        $data['email'] = (string) config('shop.email');
+    }
+
+    $same = array_values(array_filter([social_url('facebook'), social_url('instagram')]));
+    if ($same !== []) {
+        $data['sameAs'] = $same;
+    }
+
+    return $data;
+}
+
+/** Asset path without the version suffix, for use inside absolute URLs. */
+function asset_path(string $path): string
+{
+    return '/assets/' . ltrim($path, '/');
+}
+
+/** Breadcrumb structured data from [name => path] pairs. */
+function breadcrumb_schema(array $crumbs): array
+{
+    $items = [];
+    $i = 1;
+
+    foreach ($crumbs as $name => $path) {
+        $items[] = ['@type' => 'ListItem', 'position' => $i++, 'name' => (string) $name, 'item' => site_url() . $path];
+    }
+
+    return ['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $items];
 }
