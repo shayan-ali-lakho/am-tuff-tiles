@@ -76,3 +76,5 @@
         </div>
     </section>
 <?php endif; ?>
+
+<?= partial('partials/map') ?>

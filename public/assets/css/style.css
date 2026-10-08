@@ -793,3 +793,11 @@ a:hover { color: var(--accent-strong-hover); }
 
 /* Admin dashboard: cards centered on the page */
 .card-grid.card-grid-center { grid-template-columns: repeat(auto-fit, minmax(240px, 340px)); justify-content: center; }
+
+/* Google Map just above the footer: full width of the screen */
+.map-section { background: var(--surface); border-top: 1px solid var(--border); }
+.map-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1.5rem; padding-top: 1.5rem; padding-bottom: 1.25rem; }
+.map-bar h2 { margin: 0 0 0.2rem; font-size: 1.35rem; }
+.map-bar p { margin: 0; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; }
+.map-bar .icon { width: 18px; height: 18px; color: var(--accent-strong); flex: none; }
+.map-frame { display: block; width: 100%; height: clamp(300px, 42vw, 460px); border: 0; }

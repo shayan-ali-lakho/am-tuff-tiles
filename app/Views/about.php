@@ -111,3 +111,5 @@ $instagram = social_url('instagram');
         </p>
     </div>
 </section>
+
+<?= partial('partials/map') ?>

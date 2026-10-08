@@ -21,6 +21,10 @@ return [
         'address'  => Env::get('SHOP_ADDRESS', ''),
         'facebook'  => Env::get('SHOP_FACEBOOK') ?: 'https://www.facebook.com/p/AM-Tuff-Tiles-61555668119271/',
         'instagram' => Env::get('SHOP_INSTAGRAM') ?: '',
+        // Map: either a ready "embed" address from Google Maps, or a place/address text to search for
+        'map_embed' => Env::get('SHOP_MAP_EMBED') ?: '',
+        'map_query' => Env::get('SHOP_MAP_QUERY') ?: '',
+        'map_link'  => Env::get('SHOP_MAP_LINK') ?: '',
     ],
 
     'db' => [

@@ -256,3 +256,36 @@ function social_url(string $key): string
 
     return filter_var($url, FILTER_VALIDATE_URL) && preg_match('#^https?://#i', $url) === 1 ? $url : '';
 }
+
+
+/**
+ * Address for the Google Map frame, or '' when no location is set.
+ * SHOP_MAP_EMBED (the src from Google Maps > Share > Embed a map) is used if present, otherwise SHOP_MAP_QUERY (an address
+ * or place name) is turned into an embed address. Only Google Maps addresses are ever accepted.
+ */
+function map_embed_url(): string
+{
+    $embed = trim((string) config('shop.map_embed'));
+
+    if ($embed !== '' && preg_match('#^https://www\.google\.com/maps/embed\?[^\s"\'<>]+$#', $embed) === 1) {
+        return $embed;
+    }
+
+    $query = trim((string) config('shop.map_query'));
+
+    return $query !== '' ? 'https://www.google.com/maps?q=' . rawurlencode(mb_substr($query, 0, 200)) . '&output=embed' : '';
+}
+
+/** "Open in Google Maps" address for the map section. */
+function map_link_url(): string
+{
+    $link = trim((string) config('shop.map_link'));
+
+    if ($link !== '' && preg_match('#^https://(www\.google\.com/maps|maps\.app\.goo\.gl|goo\.gl/maps|g\.page)[^\s"\'<>]*$#', $link) === 1) {
+        return $link;
+    }
+
+    $query = trim((string) config('shop.map_query'));
+
+    return $query !== '' ? 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(mb_substr($query, 0, 200)) : '';
+}
