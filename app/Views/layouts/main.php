@@ -18,6 +18,7 @@ $whatsappDigits = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($pageDescription) ?>">
     <meta name="theme-color" content="#1F2933">
+    <link rel="icon" type="image/png" href="<?= e(asset('img/favicon.png')) ?>">
     <script>document.documentElement.className += ' js';</script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,8 +33,8 @@ $whatsappDigits = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
         <div class="container header-inner">
             <a class="brand" href="<?= e(url('/')) ?>">
                 <?php if ($logo !== null): ?>
-                    <img class="brand-logo" src="<?= e($logo) ?>" alt="" height="44">
-                    <span class="sr-only"><?= e($siteName) ?></span>
+                    <img class="brand-logo" src="<?= e($logo) ?>" alt="" width="44" height="44">
+                    <span class="brand-name"><?= e($siteName) ?></span>
                 <?php else: ?>
                     <span class="brand-mark" aria-hidden="true">AM</span>
                     <span class="brand-name"><?= e($siteName) ?></span>

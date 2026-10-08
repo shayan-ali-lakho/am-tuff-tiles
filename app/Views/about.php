@@ -6,6 +6,7 @@
 
 <section class="section">
     <div class="container prose">
+        <img class="about-logo" src="<?= e(asset('img/logo-full.png')) ?>" alt="Abdul Manan Tiles logo" width="220" height="199">
         <!-- Placeholder copy: replace with the real business story once the owner provides it. -->
         <p>
             <?= e(config('app.name')) ?> supplies tuff tiles, doors, garden products, metal gates,
