@@ -7,6 +7,7 @@ use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\ReportController;
+use App\Controllers\Admin\UserController;
 use App\Controllers\AuthController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
@@ -62,6 +63,9 @@ $router->post('/admin/orders/{id}/status', [OrderController::class, 'status']);
 
 $router->get('/admin/reports', [ReportController::class, 'index']);
 $router->get('/admin/reports/export', [ReportController::class, 'export']);
+
+$router->get('/admin/users', [UserController::class, 'index']);
+$router->post('/admin/users/{id}/role', [UserController::class, 'role']);
 
 $router->get('/admin/categories', [CategoryController::class, 'index']);
 $router->post('/admin/categories', [CategoryController::class, 'store']);

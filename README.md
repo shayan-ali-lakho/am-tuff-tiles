@@ -144,6 +144,12 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - The page gives the same answer for every email address, so nobody can find out who has an account. Up to 3 links per account per hour.
 - Setting a new password burns all open links for that account.
 
+## Admin: users
+
+- `/admin/users`: search accounts and press "Make admin" or "Remove admin". The person must first create an account on the site.
+- Safe by design: nobody can remove their own admin access, the shop always keeps at least one admin, and a turned-off account cannot be made admin.
+  Role changes take effect on the person's next click (no re-login needed).
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).

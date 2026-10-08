@@ -67,4 +67,92 @@ final class Contact
     {
         Database::connection()->prepare('UPDATE contacts SET last_login_at = NOW() WHERE id = ?')->execute([$id]);
     }
+
+    // ------------------------------------------------------------------
+    // Admin > Users
+    // ------------------------------------------------------------------
+
+    private static function userWhere(string $q): array
+    {
+        if ($q === '') {
+            return ['', []];
+        }
+
+        $like = '%' . addcslashes($q, '%_\\') . '%';
+
+        return [' WHERE (full_name LIKE ? OR email LIKE ? OR phone LIKE ?)', [$like, $like, $like]];
+    }
+
+    public static function userCount(string $q): int
+    {
+        [$where, $args] = self::userWhere($q);
+        $st = Database::connection()->prepare('SELECT COUNT(*) FROM contacts' . $where);
+        $st->execute($args);
+
+        return (int) $st->fetchColumn();
+    }
+
+    public static function userSearch(string $q, int $limit, int $offset): array
+    {
+        [$where, $args] = self::userWhere($q);
+        $st = Database::connection()->prepare(
+            'SELECT ' . self::PUBLIC_COLUMNS . ' FROM contacts' . $where
+            . " ORDER BY (portal_role = 'admin') DESC, created_at DESC, id DESC LIMIT " . max(1, $limit) . ' OFFSET ' . max(0, $offset)
+        );
+        $st->execute($args);
+
+        return $st->fetchAll();
+    }
+
+    /**
+     * Give or take away admin access. Never lets the shop end up with no admin, and an admin cannot remove their own access.
+     *
+     * @throws \RuntimeException with a message that is safe to show
+     */
+    public static function changeRole(int $actorId, int $targetId, string $role): void
+    {
+        if (!in_array($role, ['admin', 'customer'], true)) {
+            throw new \RuntimeException('Unknown role.');
+        }
+
+        if ($role === 'customer' && $actorId === $targetId) {
+            throw new \RuntimeException('You cannot remove your own admin access. Ask another admin to do it.');
+        }
+
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            // Lock all admin rows and the target, so two changes at once cannot remove the last admin
+            $pdo->query("SELECT id FROM contacts WHERE portal_role = 'admin' FOR UPDATE")->fetchAll();
+            $st = $pdo->prepare('SELECT portal_role, is_active FROM contacts WHERE id = ? FOR UPDATE');
+            $st->execute([$targetId]);
+            $target = $st->fetch();
+
+            if (!$target) {
+                throw new \RuntimeException('User not found.');
+            }
+
+            if ($role === 'admin' && (int) $target['is_active'] !== 1) {
+                throw new \RuntimeException('This account is turned off, so it cannot be made an admin.');
+            }
+
+            if ($role === 'customer' && $target['portal_role'] === 'admin') {
+                $count = (int) $pdo->query("SELECT COUNT(*) FROM contacts WHERE portal_role = 'admin' AND is_active = 1")->fetchColumn();
+
+                if ($count <= 1) {
+                    throw new \RuntimeException('There must always be at least one admin.');
+                }
+            }
+
+            $pdo->prepare('UPDATE contacts SET portal_role = ? WHERE id = ?')->execute([$role, $targetId]);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            throw $e;
+        }
+    }
 }
