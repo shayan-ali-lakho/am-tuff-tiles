@@ -512,6 +512,9 @@ a:hover { color: var(--accent-strong-hover); }
 /* Admin: sub menu */
 .admin-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
 .admin-nav .container { display: flex; gap: 0.25rem; overflow-x: auto; }
+/* Centered; auto margins keep the first tab reachable when the bar must scroll on a phone */
+.admin-nav .container > :first-child { margin-left: auto; }
+.admin-nav .container > :last-child { margin-right: auto; }
 .admin-nav a,
 .admin-nav span {
     padding: 0.85rem 1rem;
