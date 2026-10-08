@@ -20,7 +20,7 @@ return [
         'whatsapp' => Env::get('SHOP_WHATSAPP') ?: '+923003715684',
         'address'  => Env::get('SHOP_ADDRESS', ''),
         'facebook'  => Env::get('SHOP_FACEBOOK') ?: 'https://www.facebook.com/p/AM-Tuff-Tiles-61555668119271/',
-        'instagram' => Env::get('SHOP_INSTAGRAM') ?: '',
+        'instagram' => Env::get('SHOP_INSTAGRAM') ?: 'https://www.instagram.com/amtufftiles/',
         // Map: either a ready "embed" address from Google Maps, or a place/address text to search for
         'map_embed' => Env::get('SHOP_MAP_EMBED') ?: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3618.436761286689!2d66.96014607642219!3d24.917186842983497!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb315b803eb9189%3A0xa6265def8e3db95e!2sAM%20Tuff%20Tiles-%20Site%20Area!5e0!3m2!1sen!2s!4v1791454968208!5m2!1sen!2s',
         'map_query' => Env::get('SHOP_MAP_QUERY') ?: 'AM Tuff Tiles - Site Area, Karachi',
