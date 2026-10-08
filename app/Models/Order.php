@@ -302,4 +302,56 @@ final class Order
             throw $e;
         }
     }
+
+    /** Send the "new order" email to the shop and the confirmation email to the customer. Never throws. */
+    public static function notify(string $number): void
+    {
+        try {
+            $pdo = Database::connection();
+            $st  = $pdo->prepare('SELECT id FROM orders WHERE order_number = ?');
+            $st->execute([$number]);
+            $id = $st->fetchColumn();
+            $order = $id ? self::find((int) $id) : null;
+
+            if ($order === null) {
+                return;
+            }
+
+            $lines = [];
+            foreach ($order['items'] as $item) {
+                $lines[] = sprintf('- %s x %d  (%s)', $item['product_name'], $item['quantity'], money((int) $item['line_total_paisa']));
+            }
+            $items = implode("\n", $lines);
+
+            $site  = (string) config('app.name');
+            $money = static fn (int $p): string => money($p);
+            $delivery = (int) $order['delivery_paisa'] > 0 ? $money((int) $order['delivery_paisa']) : 'Free';
+
+            $shopEmail = (string) config('shop.email');
+            if ($shopEmail !== '') {
+                $admin = rtrim((string) config('app.url'), '/') . '/admin/orders/' . $order['id'];
+                \App\Core\Mailer::send(
+                    $shopEmail,
+                    'New order ' . $number . ' (' . $money((int) $order['total_paisa']) . ')',
+                    "A new cash-on-delivery order was placed.\n\nOrder: $number\nCustomer: {$order['customer_name']}\nPhone: {$order['customer_phone']}\nEmail: {$order['customer_email']}\n"
+                    . "Address: {$order['shipping_address']}, {$order['shipping_city']}\n"
+                    . ($order['notes'] ? "Notes: {$order['notes']}\n" : '')
+                    . "\nItems:\n$items\n\nDelivery: $delivery\nTotal to collect: " . $money((int) $order['total_paisa'])
+                    . "\n\nOpen the order: $admin\n",
+                    (string) $order['customer_email']
+                );
+            }
+
+            \App\Core\Mailer::send(
+                (string) $order['customer_email'],
+                'Your ' . $site . ' order ' . $number,
+                "Hello {$order['customer_name']},\n\nThank you for your order. We will call you on {$order['customer_phone']} to confirm it.\n\n"
+                . "Order: $number\n\nItems:\n$items\n\nDelivery: $delivery\nTotal to pay on delivery (cash): " . $money((int) $order['total_paisa'])
+                . "\n\nDelivering to: {$order['shipping_address']}, {$order['shipping_city']}\n\n$site\n",
+                $shopEmail !== '' ? $shopEmail : null
+            );
+        } catch (Throwable $e) {
+            error_log('Order emails failed: ' . $e->getMessage());
+        }
+    }
 }

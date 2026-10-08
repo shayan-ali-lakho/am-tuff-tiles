@@ -131,6 +131,13 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
   CSV cells that start with `= + - @` get a leading apostrophe so Excel cannot run them as formulas.
 - The dashboard shows live order, product and this-month numbers.
 
+## Emails and security headers
+
+- New order: an email goes to `SHOP_EMAIL` (with a link to the order in the admin panel) and a confirmation to the customer.
+  Emails use PHP `mail()` from `orders@your-domain`. A mail problem never stops an order. Locally (`APP_ENV=local`) nothing is sent;
+  messages are written to `storage/logs/mail.log`.
+- Every page sends a Content-Security-Policy, X-Frame-Options, nosniff and Referrer-Policy, plus HSTS over HTTPS.
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).
@@ -154,5 +161,5 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - [x] 5. Shop with filters and product page
 - [x] 6. Cart and checkout (cash on delivery, PKR)
 - [x] 7. Admin panel: products, categories, orders and monthly report
-- [ ] 8. Security pass and testing
+- [~] 8. Security pass and testing (security headers and order emails done; password reset to do)
 - [ ] 9. Production deployment checks

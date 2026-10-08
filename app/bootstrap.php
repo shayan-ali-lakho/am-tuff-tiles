@@ -55,6 +55,15 @@ set_exception_handler(static function (Throwable $e) use ($debug): void {
 $GLOBALS['__flash'] = [];
 
 if (PHP_SAPI !== 'cli') {
+    // Browser protections on every page the app serves
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'; frame-ancestors 'self'; object-src 'none'");
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
+
     $sessionDir = BASE_PATH . '/storage/sessions';
     if (is_dir($sessionDir) && is_writable($sessionDir)) {
         session_save_path($sessionDir);

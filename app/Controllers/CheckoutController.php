@@ -122,6 +122,7 @@ final class CheckoutController
         }
 
         Cart::clear();
+        Order::notify($number);
         redirect('/order/' . rawurlencode($number));
     }
 
