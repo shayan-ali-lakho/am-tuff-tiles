@@ -102,6 +102,15 @@ in Git. WebP needs PHP's GD with WebP support; if the server lacks it the admin 
 To run the site with larger photos, PHP needs `upload_max_filesize` and `post_max_size` of at least 12M and 40M
 (Hostinger's defaults are higher).
 
+## Shop (public)
+
+- `/shop`: filter bar directly under the menu (search, category, price range, size, material, in stock, sort), 12 products per page.
+  Filters live in the URL, so a filtered page can be shared. Every value is checked against real data; unknown values are ignored.
+- `/product/{slug}`: photo gallery, price, stock, details and related products.
+- Only active products in active categories are ever shown. Until checkout is built, the product page shows contact buttons
+  (WhatsApp, call, email) taken from `SHOP_PHONE`, `SHOP_WHATSAPP` and `SHOP_EMAIL` in `.env`.
+- The Home page shows the active categories and featured products, and still opens if the database is down.
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).
@@ -122,7 +131,7 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - [x] 2. Database schema and seed data
 - [x] 3. Auth: register, login, roles (`portal_role` on `contacts`), protected admin area
 - [ ] 4. Layout polish, full Home and About content
-- [ ] 5. Shop with filters and product page
+- [x] 5. Shop with filters and product page
 - [ ] 6. Cart and checkout (cash on delivery, PKR)
 - [ ] 7. Admin panel: products and categories done; orders and monthly report to do
 - [ ] 8. Security pass and testing

@@ -1,4 +1,9 @@
-<?php /** @var array<int, array{name: string, text: string}> $categories */ ?>
+<?php
+/**
+ * @var list<array<string, mixed>> $categories
+ * @var list<array<string, mixed>> $featured
+ */
+?>
 <section class="hero">
     <div class="container">
         <div class="hero-inner">
@@ -9,10 +14,8 @@
                 for homes, shops and building projects.
             </p>
             <div class="hero-actions">
-                <a class="btn btn-primary" href="<?= e(url('/about')) ?>">About us</a>
-                <?php if (config('shop.email')): ?>
-                    <a class="btn btn-ghost" href="mailto:<?= e(config('shop.email')) ?>">Email us</a>
-                <?php endif; ?>
+                <a class="btn btn-primary" href="<?= e(url('/shop')) ?>">Shop now</a>
+                <a class="btn btn-ghost" href="<?= e(url('/about')) ?>">About us</a>
             </div>
         </div>
     </div>
@@ -22,16 +25,38 @@
     <div class="container">
         <div class="section-head">
             <h2>What we offer</h2>
-            <p>Our main product ranges. More products are added regularly.</p>
+            <p>Browse our main product ranges. More products are added regularly.</p>
         </div>
 
         <ul class="card-grid">
             <?php foreach ($categories as $category): ?>
-                <li class="card">
-                    <h3><?= e($category['name']) ?></h3>
-                    <p><?= e($category['text']) ?></p>
+                <li class="card card-link-wrap">
+                    <h3><a class="card-stretched" href="<?= e(url('/shop?category=' . rawurlencode((string) $category['slug']))) ?>"><?= e($category['name']) ?></a></h3>
+                    <?php if (!empty($category['description'])): ?>
+                        <p><?= e($category['description']) ?></p>
+                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
     </div>
 </section>
+
+<?php if ($featured !== []): ?>
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-head section-head-row">
+                <div>
+                    <h2>Featured products</h2>
+                    <p>A selection from our shop.</p>
+                </div>
+                <a class="btn btn-secondary btn-sm" href="<?= e(url('/shop')) ?>">View all products</a>
+            </div>
+
+            <ul class="product-grid">
+                <?php foreach ($featured as $product): ?>
+                    <?= partial('shop/_card', ['product' => $product]) ?>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </section>
+<?php endif; ?>

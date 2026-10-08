@@ -22,6 +22,18 @@ final class Category
         )->fetchAll();
     }
 
+    /** Categories that are turned on, with how many visible products each has (for the shop and home page). */
+    public static function forShop(): array
+    {
+        return Database::connection()->query(
+            'SELECT c.id, c.name, c.slug, c.description,
+                    (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id AND p.is_active = 1) AS product_count
+               FROM categories c
+              WHERE c.is_active = 1
+              ORDER BY c.sort_order, c.name'
+        )->fetchAll();
+    }
+
     public static function find(int $id): ?array
     {
         $st = Database::connection()->prepare('SELECT * FROM categories WHERE id = ?');

@@ -14,6 +14,7 @@ $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['f
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($pageDescription) ?>">
     <meta name="theme-color" content="#1F2933">
+    <script>document.documentElement.className += ' js';</script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +37,7 @@ $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['f
 
             <nav id="site-nav" class="site-nav" aria-label="Main">
                 <a href="<?= e(url('/')) ?>"<?= is_active('/') ? ' class="is-active" aria-current="page"' : '' ?>>Home</a>
+                <a href="<?= e(url('/shop')) ?>"<?= is_active('/shop') || is_active('/product') ? ' class="is-active" aria-current="page"' : '' ?>>Shop</a>
                 <a href="<?= e(url('/about')) ?>"<?= is_active('/about') ? ' class="is-active" aria-current="page"' : '' ?>>About</a>
 
                 <?php if ($currentUser !== null): ?>

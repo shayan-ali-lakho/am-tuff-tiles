@@ -8,12 +8,15 @@ use App\Controllers\Admin\ProductController;
 use App\Controllers\AuthController;
 use App\Controllers\HomeController;
 use App\Controllers\PageController;
+use App\Controllers\ShopController;
 
 /** @var App\Core\Router $router */
 
 // Public pages
 $router->get('/', [HomeController::class, 'index']);
 $router->get('/about', [PageController::class, 'about']);
+$router->get('/shop', [ShopController::class, 'index']);
+$router->get('/product/{slug}', [ShopController::class, 'show']);
 
 // Accounts
 $router->get('/register', [AuthController::class, 'showRegister']);

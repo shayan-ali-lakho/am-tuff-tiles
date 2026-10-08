@@ -98,6 +98,155 @@ final class Product
         Database::connection()->prepare('DELETE FROM products WHERE id = ?')->execute([$id]);
     }
 
+    // ------------------------------------------------------------------
+    // Public shop. Only products that are visible AND whose category is turned on are ever returned.
+    // ------------------------------------------------------------------
+
+    /** Sort choices offered in the shop: key => ORDER BY clause (never built from user text). */
+    public const SORTS = [
+        'newest'     => 'p.created_at DESC, p.id DESC',
+        'price_asc'  => 'p.price_paisa ASC, p.id DESC',
+        'price_desc' => 'p.price_paisa DESC, p.id DESC',
+        'name'       => 'p.name ASC, p.id DESC',
+    ];
+
+    private const SHOP_FROM = 'FROM products p JOIN categories c ON c.id = p.category_id WHERE p.is_active = 1 AND c.is_active = 1';
+
+    /**
+     * @param array{q?: string, category?: string, min?: ?int, max?: ?int, size?: string, material?: string, instock?: bool} $filters
+     */
+    public static function shopCount(array $filters): int
+    {
+        [$where, $args] = self::shopWhere($filters);
+
+        $st = Database::connection()->prepare('SELECT COUNT(*) ' . self::SHOP_FROM . $where);
+        $st->execute($args);
+
+        return (int) $st->fetchColumn();
+    }
+
+    public static function shopSearch(array $filters, string $sort, int $limit, int $offset): array
+    {
+        [$where, $args] = self::shopWhere($filters);
+        $order = self::SORTS[$sort] ?? self::SORTS['newest'];
+
+        $st = Database::connection()->prepare(
+            self::cardColumns() . ' ' . self::SHOP_FROM . $where . ' ORDER BY ' . $order
+            . ' LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset)
+        );
+        $st->execute($args);
+
+        return $st->fetchAll();
+    }
+
+    /** One product for its public page, or null when it does not exist or is hidden. */
+    public static function findForShop(string $slug): ?array
+    {
+        $st = Database::connection()->prepare(
+            'SELECT p.*, c.name AS category_name, c.slug AS category_slug ' . self::SHOP_FROM . ' AND p.slug = ?'
+        );
+        $st->execute([$slug]);
+
+        return $st->fetch() ?: null;
+    }
+
+    /** Other products from the same category, newest first. */
+    public static function related(int $categoryId, int $exceptId, int $limit): array
+    {
+        $st = Database::connection()->prepare(
+            self::cardColumns() . ' ' . self::SHOP_FROM . ' AND p.category_id = ? AND p.id <> ?
+             ORDER BY p.is_featured DESC, p.created_at DESC, p.id DESC LIMIT ' . max(1, $limit)
+        );
+        $st->execute([$categoryId, $exceptId]);
+
+        return $st->fetchAll();
+    }
+
+    /** Featured products for the home page; if none are marked featured, the newest ones. */
+    public static function featured(int $limit): array
+    {
+        $st = Database::connection()->prepare(
+            self::cardColumns() . ' ' . self::SHOP_FROM . ' ORDER BY p.is_featured DESC, p.created_at DESC, p.id DESC LIMIT ' . max(1, $limit)
+        );
+        $st->execute();
+
+        return $st->fetchAll();
+    }
+
+    /**
+     * Values for the filter dropdowns, taken from products that are actually for sale.
+     *
+     * @return array{sizes: list<string>, materials: list<string>}
+     */
+    public static function shopOptions(): array
+    {
+        $pdo = Database::connection();
+
+        $sizes = $pdo->query(
+            'SELECT DISTINCT p.size ' . self::SHOP_FROM . " AND p.size IS NOT NULL AND p.size <> '' ORDER BY p.size"
+        )->fetchAll(\PDO::FETCH_COLUMN);
+
+        $materials = $pdo->query(
+            'SELECT DISTINCT p.material ' . self::SHOP_FROM . " AND p.material IS NOT NULL AND p.material <> '' ORDER BY p.material"
+        )->fetchAll(\PDO::FETCH_COLUMN);
+
+        return ['sizes' => array_map('strval', $sizes), 'materials' => array_map('strval', $materials)];
+    }
+
+    private static function cardColumns(): string
+    {
+        return 'SELECT p.id, p.name, p.slug, p.short_description, p.price_paisa, p.stock_qty, p.is_featured,
+                       c.name AS category_name, c.slug AS category_slug,
+                       (SELECT i.file_path FROM product_images i
+                         WHERE i.product_id = p.id
+                         ORDER BY i.is_primary DESC, i.sort_order, i.id LIMIT 1) AS image_path';
+    }
+
+    /** @return array{0: string, 1: list<mixed>} " AND ..." text and its values */
+    private static function shopWhere(array $filters): array
+    {
+        $where = '';
+        $args = [];
+
+        $q = trim((string) ($filters['q'] ?? ''));
+        if ($q !== '') {
+            $like = '%' . addcslashes($q, '%_\\') . '%';
+            $where .= ' AND (p.name LIKE ? OR p.short_description LIKE ?)';
+            array_push($args, $like, $like);
+        }
+
+        if (($filters['category'] ?? '') !== '') {
+            $where .= ' AND c.slug = ?';
+            $args[] = $filters['category'];
+        }
+
+        if (isset($filters['min']) && $filters['min'] > 0) {
+            $where .= ' AND p.price_paisa >= ?';
+            $args[] = (int) $filters['min'];
+        }
+
+        if (isset($filters['max']) && $filters['max'] > 0) {
+            $where .= ' AND p.price_paisa <= ?';
+            $args[] = (int) $filters['max'];
+        }
+
+        if (($filters['size'] ?? '') !== '') {
+            $where .= ' AND p.size = ?';
+            $args[] = $filters['size'];
+        }
+
+        if (($filters['material'] ?? '') !== '') {
+            $where .= ' AND p.material = ?';
+            $args[] = $filters['material'];
+        }
+
+        if (!empty($filters['instock'])) {
+            $where .= ' AND p.stock_qty > 0';
+        }
+
+        return [$where, $args];
+    }
+
     /** @return list<mixed> */
     private static function values(array $data): array
     {
