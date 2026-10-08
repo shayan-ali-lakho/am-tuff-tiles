@@ -107,9 +107,20 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - `/shop`: filter bar directly under the menu (search, category, price range, size, material, in stock, sort), 12 products per page.
   Filters live in the URL, so a filtered page can be shared. Every value is checked against real data; unknown values are ignored.
 - `/product/{slug}`: photo gallery, price, stock, details and related products.
-- Only active products in active categories are ever shown. Until checkout is built, the product page shows contact buttons
+- Only active products in active categories are ever shown. The product page also shows contact buttons
   (WhatsApp, call, email) taken from `SHOP_PHONE`, `SHOP_WHATSAPP` and `SHOP_EMAIL` in `.env`.
 - The Home page shows the active categories and featured products, and still opens if the database is down.
+
+## Cart and checkout (cash on delivery)
+
+- Cart (`/cart`): kept in the session as product id and quantity only. Names, prices and stock are read from the database every
+  time, so prices cannot be changed by the visitor. Hidden or sold-out items are removed and quantities lowered, with a notice.
+- Checkout (`/checkout`): login required (the cart survives login or registration). Delivery details are validated, then the order
+  is saved in one transaction that locks the products, checks and reduces stock, and stores a name/price snapshot of every line.
+  The last unit can never be sold twice.
+- Delivery charge: `settings.delivery_charge_paisa` (0 = free).
+- `/order/{number}` (only the owner can open it) and `/orders` (My orders). Order numbers look like `AM-261008-1A2B3C`.
+- Admin Orders screens and the monthly report come next (step 7).
 
 ## Deploy on Hostinger (Git)
 
@@ -132,7 +143,7 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
 - [x] 3. Auth: register, login, roles (`portal_role` on `contacts`), protected admin area
 - [ ] 4. Layout polish, full Home and About content
 - [x] 5. Shop with filters and product page
-- [ ] 6. Cart and checkout (cash on delivery, PKR)
+- [x] 6. Cart and checkout (cash on delivery, PKR)
 - [ ] 7. Admin panel: products and categories done; orders and monthly report to do
 - [ ] 8. Security pass and testing
 - [ ] 9. Production deployment checks

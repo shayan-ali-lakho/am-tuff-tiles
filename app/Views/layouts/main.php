@@ -5,6 +5,7 @@ $pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : $siteName . ' 
 $pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates, roof ceilings and more.';
 $currentUser = \App\Core\Auth::user();
 $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['full_name']))[0] ?? '') : '';
+$cartCount = \App\Models\Cart::count();
 ?>
 <!doctype html>
 <html lang="en">
@@ -38,12 +39,14 @@ $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['f
             <nav id="site-nav" class="site-nav" aria-label="Main">
                 <a href="<?= e(url('/')) ?>"<?= is_active('/') ? ' class="is-active" aria-current="page"' : '' ?>>Home</a>
                 <a href="<?= e(url('/shop')) ?>"<?= is_active('/shop') || is_active('/product') ? ' class="is-active" aria-current="page"' : '' ?>>Shop</a>
+                <a href="<?= e(url('/cart')) ?>"<?= is_active('/cart') || is_active('/checkout') ? ' class="is-active" aria-current="page"' : '' ?>>Cart<?php if ($cartCount > 0): ?> <span class="cart-count" aria-label="<?= e($cartCount) ?> items"><?= e($cartCount) ?></span><?php endif; ?></a>
                 <a href="<?= e(url('/about')) ?>"<?= is_active('/about') ? ' class="is-active" aria-current="page"' : '' ?>>About</a>
 
                 <?php if ($currentUser !== null): ?>
                     <?php if (($currentUser['portal_role'] ?? '') === 'admin'): ?>
                         <a href="<?= e(url('/admin')) ?>"<?= is_active('/admin') ? ' class="is-active" aria-current="page"' : '' ?>>Admin</a>
                     <?php endif; ?>
+                    <a href="<?= e(url('/orders')) ?>"<?= is_active('/orders') || is_active('/order') ? ' class="is-active" aria-current="page"' : '' ?>>My orders</a>
                     <span class="nav-user">Hi, <?= e($firstName) ?></span>
                     <form method="post" action="<?= e(url('/logout')) ?>" class="nav-form">
                         <?= csrf_field() ?>

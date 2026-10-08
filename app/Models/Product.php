@@ -150,6 +150,38 @@ final class Product
         return $st->fetch() ?: null;
     }
 
+    /**
+     * Current data for products in a cart (only visible products in turned-on categories).
+     *
+     * @param list<int> $ids
+     * @return array<int, array<string, mixed>> keyed by product id
+     */
+    public static function forCart(array $ids): array
+    {
+        $ids = array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0));
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $marks = implode(',', array_fill(0, count($ids), '?'));
+        $st = Database::connection()->prepare(
+            'SELECT p.id, p.name, p.slug, p.price_paisa, p.stock_qty,
+                    (SELECT i.file_path FROM product_images i
+                      WHERE i.product_id = p.id
+                      ORDER BY i.is_primary DESC, i.sort_order, i.id LIMIT 1) AS image_path '
+            . self::SHOP_FROM . " AND p.id IN ($marks)"
+        );
+        $st->execute($ids);
+
+        $out = [];
+        foreach ($st->fetchAll() as $row) {
+            $out[(int) $row['id']] = $row;
+        }
+
+        return $out;
+    }
+
     /** Other products from the same category, newest first. */
     public static function related(int $categoryId, int $exceptId, int $limit): array
     {

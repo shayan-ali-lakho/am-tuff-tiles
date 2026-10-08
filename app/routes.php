@@ -6,6 +6,8 @@ use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\AuthController;
+use App\Controllers\CartController;
+use App\Controllers\CheckoutController;
 use App\Controllers\HomeController;
 use App\Controllers\PageController;
 use App\Controllers\ShopController;
@@ -17,6 +19,16 @@ $router->get('/', [HomeController::class, 'index']);
 $router->get('/about', [PageController::class, 'about']);
 $router->get('/shop', [ShopController::class, 'index']);
 $router->get('/product/{slug}', [ShopController::class, 'show']);
+
+// Cart and checkout (cash on delivery)
+$router->get('/cart', [CartController::class, 'show']);
+$router->post('/cart/add', [CartController::class, 'add']);
+$router->post('/cart/update', [CartController::class, 'update']);
+$router->post('/cart/remove', [CartController::class, 'remove']);
+$router->get('/checkout', [CheckoutController::class, 'show']);
+$router->post('/checkout', [CheckoutController::class, 'place']);
+$router->get('/order/{number}', [CheckoutController::class, 'confirmation']);
+$router->get('/orders', [CheckoutController::class, 'orders']);
 
 // Accounts
 $router->get('/register', [AuthController::class, 'showRegister']);

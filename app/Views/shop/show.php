@@ -76,21 +76,34 @@ $whatsapp = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
                     <?php endif; ?>
                 </dl>
 
-                <!-- Temporary until the cart and checkout are built: ordering by contacting the shop. -->
-                <div class="order-note">
-                    <p><strong>Online ordering is opening soon.</strong> To order this product now, contact us:</p>
-                    <p class="order-note-links">
-                        <?php if ($whatsapp !== ''): ?>
-                            <a class="btn btn-primary btn-sm" href="https://wa.me/<?= e($whatsapp) ?>?text=<?= e(rawurlencode('Hello, I am interested in: ' . $name)) ?>">WhatsApp</a>
-                        <?php endif; ?>
-                        <?php if ($phone !== ''): ?>
-                            <a class="btn btn-secondary btn-sm" href="tel:<?= e($phone) ?>">Call <?= e($phone) ?></a>
-                        <?php endif; ?>
-                        <?php if ($email !== ''): ?>
-                            <a class="btn btn-secondary btn-sm" href="mailto:<?= e($email) ?>?subject=<?= e(rawurlencode('Enquiry: ' . $name)) ?>">Email us</a>
-                        <?php endif; ?>
-                    </p>
-                </div>
+                <?php if ($stock > 0): ?>
+                    <form method="post" action="<?= e(url('/cart/add')) ?>" class="buy-form">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="product_id" value="<?= e($product['id']) ?>">
+                        <input type="hidden" name="back" value="<?= e('/product/' . $product['slug']) ?>">
+                        <label class="sr-only" for="buy-qty">Quantity</label>
+                        <input id="buy-qty" class="qty-input" type="number" name="qty" value="1" min="1" max="<?= e(min(999, $stock)) ?>" inputmode="numeric">
+                        <button class="btn btn-primary" type="submit">Add to cart</button>
+                    </form>
+                    <p class="field-hint">Cash on delivery.</p>
+                <?php endif; ?>
+
+                <?php if ($whatsapp !== '' || $phone !== '' || $email !== ''): ?>
+                    <div class="order-note">
+                        <p>Questions about this product? Contact us:</p>
+                        <p class="order-note-links">
+                            <?php if ($whatsapp !== ''): ?>
+                                <a class="btn btn-secondary btn-sm" href="https://wa.me/<?= e($whatsapp) ?>?text=<?= e(rawurlencode('Hello, I am interested in: ' . $name)) ?>">WhatsApp</a>
+                            <?php endif; ?>
+                            <?php if ($phone !== ''): ?>
+                                <a class="btn btn-secondary btn-sm" href="tel:<?= e($phone) ?>">Call <?= e($phone) ?></a>
+                            <?php endif; ?>
+                            <?php if ($email !== ''): ?>
+                                <a class="btn btn-secondary btn-sm" href="mailto:<?= e($email) ?>?subject=<?= e(rawurlencode('Enquiry: ' . $name)) ?>">Email us</a>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
