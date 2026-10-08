@@ -329,7 +329,7 @@ final class Order
 
             $shopEmail = (string) config('shop.email');
             if ($shopEmail !== '') {
-                $admin = rtrim((string) config('app.url'), '/') . '/admin/orders/' . $order['id'];
+                $admin = \App\Core\Mailer::baseUrl() . '/admin/orders/' . $order['id'];
                 \App\Core\Mailer::send(
                     $shopEmail,
                     'New order ' . $number . ' (' . $money((int) $order['total_paisa']) . ')',

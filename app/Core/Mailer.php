@@ -22,9 +22,7 @@ final class Mailer
                 return false;
             }
 
-            $host = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
-            $host = preg_replace('/^www\./', '', $host ?: 'localhost');
-            $from = 'orders@' . $host;
+            $from = 'orders@' . self::mailDomain();
             $name = self::clean((string) config('app.name'));
 
             if (config('app.env') === 'local') {
@@ -56,6 +54,37 @@ final class Mailer
 
             return false;
         }
+    }
+
+    /**
+     * Domain for the From address (orders@your-domain). Taken from APP_URL, even if it was typed slightly wrong
+     * (for example "https//example.com"), otherwise from the address the visitor used; it must look like a real domain.
+     */
+    /** Web address of the site for links inside emails, e.g. https://example.com */
+    public static function baseUrl(): string
+    {
+        $local = str_starts_with(strtolower((string) config('app.url')), 'http://');
+        $host  = self::mailDomain();
+
+        return ($local && $host === 'localhost.localdomain' ? 'http://' : 'https://') . ($host === 'localhost.localdomain' ? '127.0.0.1' : $host);
+    }
+
+    private static function mailDomain(): string
+    {
+        $candidates = [(string) config('app.url'), (string) ($_SERVER['HTTP_HOST'] ?? '')];
+
+        foreach ($candidates as $value) {
+            $value = strtolower(trim($value));
+            $value = preg_replace('#^[a-z][a-z0-9+.-]*(?::/+|//+)#', '', $value) ?? $value; // drop "https://", "https//" and the like
+            $value = preg_replace('#[/:?].*$#', '', $value) ?? $value;    // drop path and port
+            $value = preg_replace('/^www\./', '', $value) ?? $value;
+
+            if (preg_match('/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/', $value) === 1) {
+                return $value;
+            }
+        }
+
+        return 'localhost.localdomain';
     }
 
     /** Remove line breaks so a value can never add extra email headers. */
