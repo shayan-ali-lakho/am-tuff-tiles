@@ -1,3 +1,12 @@
+// Ask before destructive actions: <form data-confirm="Are you sure?">
+document.addEventListener('submit', function (event) {
+    var message = event.target && event.target.getAttribute ? event.target.getAttribute('data-confirm') : null;
+
+    if (message && !window.confirm(message)) {
+        event.preventDefault();
+    }
+});
+
 // Mobile navigation toggle
 (function () {
     var toggle = document.querySelector('.nav-toggle');

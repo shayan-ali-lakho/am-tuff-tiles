@@ -56,7 +56,7 @@ $firstName = $currentUser !== null ? (explode(' ', trim((string) $currentUser['f
     </header>
 
     <main id="main">
-        <?php foreach (['success' => 'alert-success', 'error' => 'alert-error', 'info' => 'alert-info'] as $type => $alertClass): ?>
+        <?php foreach (['success' => 'alert-success', 'warning' => 'alert-warning', 'error' => 'alert-error', 'info' => 'alert-info'] as $type => $alertClass): ?>
             <?php $flashMessage = flash_get($type); ?>
             <?php if (is_string($flashMessage) && $flashMessage !== ''): ?>
                 <div class="container flash-wrap">

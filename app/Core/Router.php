@@ -39,10 +39,19 @@ final class Router
 
         // Default-deny rules that apply to every route, so a new page cannot forget them:
         // 1) every POST must carry a valid CSRF token
-        if ($method === 'POST' && !Csrf::verify($_POST['_token'] ?? null)) {
-            http_response_code(419);
-            echo view('errors/419', ['title' => 'Session expired']);
-            return;
+        if ($method === 'POST') {
+            // PHP drops the whole body when it is bigger than post_max_size (for example huge photos)
+            if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0 && $_POST === [] && $_FILES === []) {
+                http_response_code(413);
+                echo view('errors/413', ['title' => 'Upload too large']);
+                return;
+            }
+
+            if (!Csrf::verify($_POST['_token'] ?? null)) {
+                http_response_code(419);
+                echo view('errors/419', ['title' => 'Session expired']);
+                return;
+            }
         }
 
         // 2) everything under /admin needs a logged-in user whose portal_role is admin

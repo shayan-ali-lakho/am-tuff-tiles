@@ -80,6 +80,68 @@ function redirect(string $path, int $status = 302): never
     exit;
 }
 
+/** Stop with the standard 403 or 404 page. */
+function abort(int $status): never
+{
+    http_response_code($status);
+    echo view('errors/' . $status, ['title' => $status === 403 ? 'Access denied' : 'Page not found']);
+    exit;
+}
+
+/** Render a view without the page layout (for repeated blocks such as the admin menu). */
+function partial(string $name, array $data = []): string
+{
+    return view($name, $data, null);
+}
+
+/** URL-friendly text: "Grey Tuff Tile 30x30" -> "grey-tuff-tile-30x30". May be empty for non-Latin names. */
+function slugify(string $text): string
+{
+    if (function_exists('iconv')) {
+        $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+        if (is_string($converted)) {
+            $text = $converted;
+        }
+    }
+
+    $text = strtolower($text);
+    $text = (string) preg_replace('/[^a-z0-9]+/', '-', $text);
+
+    return trim($text, '-');
+}
+
+/**
+ * Turn what an admin typed ("1250", "1,250", "Rs 1250.50") into paisa (125000, 125050).
+ * Returns null when it is not a valid amount.
+ */
+function parse_price(string $input): ?int
+{
+    $clean = preg_replace('/^(pkr|rs\.?|₨)\s*/i', '', trim($input));
+    $clean = str_replace([',', ' '], '', (string) $clean);
+
+    if (preg_match('/^(\d{1,9})(?:\.(\d{1,2}))?$/', $clean, $m) !== 1) {
+        return null;
+    }
+
+    return ((int) $m[1]) * 100 + (int) str_pad($m[2] ?? '0', 2, '0');
+}
+
+/** Paisa -> text for a price input: 125000 -> "1250", 125050 -> "1250.50". */
+function price_input(int $paisa): string
+{
+    return $paisa % 100 === 0 ? (string) intdiv($paisa, 100) : number_format($paisa / 100, 2, '.', '');
+}
+
+/** Public URL of a stored photo (path as saved in product_images.file_path). */
+function upload_url(string $path, bool $thumb = false): string
+{
+    if ($thumb) {
+        $path = preg_replace('/\.jpg$/', '_thumb.jpg', $path) ?? $path;
+    }
+
+    return '/uploads/' . ltrim($path, '/');
+}
+
 /** Hidden CSRF input for every POST form. */
 function csrf_field(): string
 {

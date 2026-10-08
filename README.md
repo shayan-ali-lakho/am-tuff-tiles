@@ -8,8 +8,8 @@ Plain PHP 8 + MySQL, built to run on Hostinger shared hosting.
 ```
 app/            PHP code (not reachable from the web)
   Controllers/  one class per area of the site (Admin/ for the admin panel)
-  Core/         Router, Env loader, Database (PDO), Auth, Csrf
-  Models/       database access (Contact, LoginAttempt)
+  Core/         Router, Env loader, Database (PDO), Auth, Csrf, ImageUploader
+  Models/       database access (Contact, LoginAttempt, Category, Product, ProductImage)
   Views/        page templates and layouts
   routes.php    URL -> controller map
 bin/            command-line scripts (migrate.php, create-admin.php)
@@ -84,6 +84,24 @@ Make someone an admin (choose one):
 
 Not built yet: password reset by email (needs mail sending set up).
 
+## Admin: products and categories
+
+- **Products** (`/admin/products`): search and filter by category or status (visible, hidden, out of stock), add,
+  edit, hide or show, delete. Each product has a name, category, price in PKR (stored in paisa), size, material,
+  stock quantity, short and full description, "visible in the shop" and "featured" switches, and up to 8 photos.
+- **Categories** (`/admin/categories`): add, rename, reorder, turn off, delete (only when no products use it).
+  A category's link name (slug) is created once and never changes.
+- Hiding a product keeps it; deleting removes it and its photos. Past orders keep their own copy of the name and price.
+
+Photo uploads (`app/Core/ImageUploader.php`): the real file type is checked (JPG, PNG or WebP only), every photo is
+decoded and re-encoded as a new JPEG (so nothing hidden in the original survives), turned upright using the phone's
+rotation flag, resized to 1600 px on the longest side with a 640 px thumbnail, and saved under a random name in
+`public/uploads/products/`. The uploads folder refuses to run scripts (`public/uploads/.htaccess`). Photos are not
+in Git. WebP needs PHP's GD with WebP support; if the server lacks it the admin sees a clear message.
+
+To run the site with larger photos, PHP needs `upload_max_filesize` and `post_max_size` of at least 12M and 40M
+(Hostinger's defaults are higher).
+
 ## Deploy on Hostinger (Git)
 
 1. hPanel > Advanced > Git: connect this repo, branch `main`, deploy into the site folder (`public_html`).
@@ -106,6 +124,6 @@ Not built yet: password reset by email (needs mail sending set up).
 - [ ] 4. Layout polish, full Home and About content
 - [ ] 5. Shop with filters and product page
 - [ ] 6. Cart and checkout (cash on delivery, PKR)
-- [ ] 7. Admin panel: orders, products, monthly report
+- [ ] 7. Admin panel: products and categories done; orders and monthly report to do
 - [ ] 8. Security pass and testing
 - [ ] 9. Production deployment checks
