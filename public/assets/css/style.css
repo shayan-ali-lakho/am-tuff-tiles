@@ -1272,14 +1272,13 @@ a:hover { color: var(--forest-hover); }
 .nav-user { color: var(--muted); font-size: 0.875rem; }
 .nav-link-btn { color: var(--charcoal); font-size: 0.9375rem; border-radius: var(--radius-sm); }
 .nav-link-btn:hover { background: transparent; color: var(--forest); }
-.cart-count { background: var(--bronze); color: var(--charcoal); animation: none; }
+.cart-count { background: var(--bronze); color: var(--charcoal); }
 .nav-toggle { background: transparent; border: 1px solid var(--border-strong); color: var(--charcoal); border-radius: var(--radius-sm); width: 44px; height: 44px; }
 .nav-toggle:hover { background: #fff; border-color: var(--charcoal); }
 .nav-toggle-bar, .nav-toggle-bar::before, .nav-toggle-bar::after { background: var(--charcoal); height: 2px; }
 .nav-toggle[aria-expanded="true"] .nav-toggle-bar { background: transparent; }
 @media (max-width: 720px) {
     .js .site-nav { background: var(--bg); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); box-shadow: 0 12px 24px rgba(32, 39, 37, 0.08); }
-    .js .site-nav.is-open > * { animation: none; }
     .site-nav a { padding: 0.75rem 0.5rem; min-height: 44px; border-bottom: 1px solid var(--border); border-radius: 0; }
     .site-nav a:not(.nav-cta)::after { display: none; }
     .site-nav a.is-active { background: transparent; box-shadow: inset 3px 0 0 var(--bronze); padding-left: 0.875rem; }
@@ -1292,19 +1291,17 @@ a:hover { color: var(--forest-hover); }
 .hero, .page-head, .site-footer { background: var(--forest); background-image: none; }
 .hero { padding: clamp(3rem, 7vw, 5.5rem) 0; }
 .hero::before { display: none; }
-.hero-inner > * { animation: none; }
 .hero h1 { font-size: clamp(2rem, 1.2rem + 3.2vw, 3.5rem); line-height: 1.1; color: #fff; }
 .hero-lead { color: #d9dfdc; font-size: 1.0625rem; line-height: 1.55; }
 .hero-actions { gap: 1rem; margin-top: 2rem; }
 .eyebrow { color: var(--bronze); font-size: 0.75rem; letter-spacing: 0.14em; }
 .eyebrow::before { height: 2px; width: 24px; border-radius: 0; background: var(--bronze); }
 .page-head { padding: clamp(2rem, 5vw, 3.25rem) 0; border-bottom: 0; }
-.page-head h1 { animation: none; color: #fff; font-size: clamp(1.875rem, 1.3rem + 2vw, 3rem); }
+.page-head h1 { color: #fff; font-size: clamp(1.875rem, 1.3rem + 2vw, 3rem); }
 .page-head-sub { color: #d9dfdc; }
 .page-head a, .page-head .link-light { color: #fff; }
 
 /* Hero pictures: tidy rectangles instead of floating circles */
-.hero-circle { animation: none; }
 .hero-circle a { border-radius: var(--radius); border: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28); }
 .hero-circle-label { font-size: 0.875rem; background: linear-gradient(transparent, rgba(15, 25, 22, 0.78)); }
 @media (max-width: 960px) { .hero-circle a { border-width: 1px; } }
@@ -1389,7 +1386,7 @@ a:hover { color: var(--forest-hover); }
 
 /* Badges and alerts */
 .badge { border-radius: 4px; font-size: 0.75rem; letter-spacing: 0.02em; }
-.alert { border-radius: var(--radius-sm); animation: none; }
+.alert { border-radius: var(--radius-sm); }
 .cart-line:hover, .table tbody tr:hover { background: var(--bg); }
 .table th { background: var(--bg); }
 .pay-option input:checked + .pay-option-card { border-color: var(--forest); background: var(--bg); box-shadow: 0 0 0 3px rgba(181, 139, 85, 0.3); }
@@ -1427,7 +1424,61 @@ a:hover { color: var(--forest-hover); }
 .modal-timer { border-radius: 0 0 var(--radius) var(--radius); }
 
 /* Calm motion: no entrance animations, scroll reveals or lifts */
-.js .reveal, .js .reveal.is-visible { opacity: 1; animation: none; }
 @media (max-width: 560px) { h1 { font-size: 1.875rem; } }
 input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0.5rem 0.75rem; font: inherit; background: #fff; }
 .order-note { margin-top: 1rem; }
+
+/* Motion: smooth, short and tied to the palette (switched off for people who prefer less motion, see above) */
+.btn { transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s var(--ease), box-shadow 0.25s var(--ease); }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0) scale(0.98); }
+.btn-primary:hover { box-shadow: 0 8px 18px rgba(32, 56, 51, 0.25); }
+.hero .btn-primary:hover, .btn-accent:hover { box-shadow: 0 8px 18px rgba(181, 139, 85, 0.35); }
+
+.site-header { transition: box-shadow 0.3s var(--ease), background-color 0.3s; }
+.site-header.is-scrolled { box-shadow: 0 6px 20px rgba(32, 39, 37, 0.10); }
+.brand:hover .brand-logo { transform: rotate(-6deg) scale(1.05); }
+
+/* Page opens: hero text and pictures rise in one after another */
+.hero-inner > * { animation: fadeUp 0.8s var(--ease) both; }
+.hero-inner > :nth-child(2) { animation-delay: 0.1s; }
+.hero-inner > :nth-child(3) { animation-delay: 0.2s; }
+.hero-inner > :nth-child(4) { animation-delay: 0.3s; }
+.page-head h1 { animation: fadeUp 0.7s var(--ease) both; }
+.hero-circle { animation: popIn 0.8s var(--ease) both, float 8s ease-in-out 1s infinite; }
+.hero-circle-2 { animation-delay: 0.15s, 1.4s; animation-duration: 0.8s, 9s; }
+.hero-circle-3 { animation-delay: 0.3s, 2s; animation-duration: 0.8s, 7s; }
+.hero-circle a:hover img { transform: scale(1.08); }
+.hero-circle img { transition: transform 0.6s var(--ease); }
+
+/* Scrolling: blocks fade up as they arrive */
+.js .reveal.is-visible { animation: fadeUp 0.7s var(--ease) var(--reveal-delay, 0s) backwards; }
+
+/* Cards lift, the border turns bronze and the photo zooms */
+.product-card, .card-link-wrap, .card, .about-points li { transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.25s; }
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 14px 30px rgba(32, 39, 37, 0.14); border-color: var(--bronze); }
+.product-card-media img { transition: transform 0.7s var(--ease); }
+.product-card:hover .product-card-media img { transform: scale(1.08); }
+.card-link-wrap:hover { transform: translateY(-5px); box-shadow: 0 14px 30px rgba(32, 39, 37, 0.12); }
+.card-link-wrap h3::before { display: block; }
+.card-link-wrap h3::before { color: var(--bronze); }
+.about-points li:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(32, 39, 37, 0.10); }
+
+/* Nav underline grows from the left, pay options and badges respond to hover */
+.site-nav a:not(.nav-cta)::after { transition: transform 0.3s var(--ease); transform-origin: left; }
+.pay-option-card { transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s var(--ease), background-color 0.25s; }
+.pay-option:hover .pay-option-card { transform: translateY(-2px); }
+.cart-count { animation: pop 0.45s var(--ease) both; }
+.alert { animation: slideDown 0.45s var(--ease) both; }
+.js .site-nav.is-open > * { animation: navItemIn 0.4s var(--ease) both; }
+.js .site-nav.is-open > *:nth-child(2) { animation-delay: 0.04s; }
+.js .site-nav.is-open > *:nth-child(3) { animation-delay: 0.08s; }
+.js .site-nav.is-open > *:nth-child(4) { animation-delay: 0.12s; }
+.js .site-nav.is-open > *:nth-child(5) { animation-delay: 0.16s; }
+.js .site-nav.is-open > *:nth-child(6) { animation-delay: 0.2s; }
+.js .site-nav.is-open > *:nth-child(7) { animation-delay: 0.24s; }
+.carousel-btn { transition: transform 0.25s var(--ease), background-color 0.25s, border-color 0.25s, opacity 0.25s; }
+.carousel-btn:hover:not(:disabled) { transform: translateY(-50%) scale(1.1); }
+.section-head h2::after { transform-origin: left; }
+.js .reveal.is-visible .section-head h2::after, .js .section-head.is-visible h2::after { animation: growLine 0.8s 0.2s var(--ease) both; }
+@keyframes growLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
