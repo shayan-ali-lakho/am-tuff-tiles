@@ -32,11 +32,12 @@ final class CategoryController
         if ($problem !== null) {
             flash('errors', ['new' => $problem]);
             flash('old', ['name' => $name, 'description' => (string) $description, 'sort_order' => (string) $sort]);
+            notify('error', 'Category not added', $problem);
             redirect('/admin/categories');
         }
 
         Category::create($name, $description, $sort, isset($_POST['is_active']));
-        flash('success', 'Category "' . $name . '" added.');
+        notify('success', 'Category added', 'Category "' . $name . '" was added.');
         redirect('/admin/categories');
     }
 
@@ -53,12 +54,12 @@ final class CategoryController
 
         if ($problem !== null) {
             flash('errors', [$categoryId => $problem]);
-            flash('error', 'Category not saved: ' . $problem);
+            notify('error', 'Category not saved', $problem);
             redirect('/admin/categories');
         }
 
         Category::update($categoryId, $name, $description, $sort, isset($_POST['is_active']));
-        flash('success', 'Category "' . $name . '" saved.');
+        notify('success', 'Category saved', 'Category "' . $name . '" was saved.');
         redirect('/admin/categories');
     }
 
@@ -68,12 +69,12 @@ final class CategoryController
         $categoryId = (int) $category['id'];
 
         if (Category::productCount($categoryId) > 0) {
-            flash('error', 'You cannot delete "' . $category['name'] . '" while products use it. Move or delete those products first, or just turn the category off.');
+            notify('error', 'Cannot delete category', 'You cannot delete "' . $category['name'] . '" while products use it. Move or delete those products first, or just turn the category off.');
             redirect('/admin/categories');
         }
 
         Category::delete($categoryId);
-        flash('success', 'Category "' . $category['name'] . '" was deleted.');
+        notify('success', 'Category deleted', 'Category "' . $category['name'] . '" was deleted.');
         redirect('/admin/categories');
     }
 

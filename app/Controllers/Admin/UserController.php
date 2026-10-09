@@ -43,9 +43,9 @@ final class UserController
 
         try {
             Contact::changeRole((int) (Auth::user()['id'] ?? 0), (int) $target['id'], $role);
-            flash('success', $target['full_name'] . ($role === 'admin' ? ' is now an admin.' : ' is no longer an admin.'));
+            notify('success', $role === 'admin' ? 'Admin added' : 'Admin removed', $target['full_name'] . ($role === 'admin' ? ' is now an admin.' : ' is no longer an admin.'));
         } catch (RuntimeException $e) {
-            flash('error', $e->getMessage());
+            notify('error', 'Could not change role', $e->getMessage());
         }
 
         $q    = trim(mb_substr((string) ($_POST['q'] ?? ''), 0, 100));

@@ -94,15 +94,6 @@ $instagram = social_url('instagram');
     </header>
 
     <main id="main">
-        <?php foreach (['success' => 'alert-success', 'warning' => 'alert-warning', 'error' => 'alert-error', 'info' => 'alert-info'] as $type => $alertClass): ?>
-            <?php $flashMessage = flash_get($type); ?>
-            <?php if (is_string($flashMessage) && $flashMessage !== ''): ?>
-                <div class="container flash-wrap">
-                    <div class="alert <?= e($alertClass) ?>" role="<?= $type === 'error' ? 'alert' : 'status' ?>"><?= e($flashMessage) ?></div>
-                </div>
-            <?php endif; ?>
-        <?php endforeach; ?>
-
         <?= $content ?>
     </main>
 
@@ -159,6 +150,34 @@ $instagram = social_url('instagram');
             </div>
         </div>
     </footer>
+
+    <?php $modal = modal_data(); ?>
+    <?php if ($modal !== null): ?>
+        <?php $autoClose = $modal['type'] === 'success' && $modal['actions'] === [] && $modal['notes'] === []; ?>
+        <div class="modal is-<?= e($modal['type']) ?>" data-modal<?= $autoClose ? ' data-autoclose="4500"' : '' ?> role="alertdialog" aria-modal="true" aria-labelledby="modal-title"<?= $modal['message'] !== '' ? ' aria-describedby="modal-text"' : '' ?>>
+            <div class="modal-backdrop" data-modal-close></div>
+            <div class="modal-box" tabindex="-1">
+                <div class="modal-icon"><?= modal_icon($modal['type']) ?></div>
+                <h2 id="modal-title" class="modal-title"><?= e($modal['title']) ?></h2>
+                <?php if ($modal['message'] !== ''): ?><p id="modal-text" class="modal-text"><?= e($modal['message']) ?></p><?php endif; ?>
+                <?php foreach ($modal['notes'] as $note): ?><p class="modal-text modal-note"><?= e($note) ?></p><?php endforeach; ?>
+                <div class="modal-actions">
+                    <?php foreach ($modal['actions'] as $action): ?>
+                        <?php $cls = 'btn ' . (!empty($action['primary']) ? 'btn-primary' : 'btn-secondary'); ?>
+                        <?php if (!empty($action['href'])): ?>
+                            <a class="<?= e($cls) ?>" href="<?= e(url((string) $action['href'])) ?>"><?= e((string) $action['label']) ?></a>
+                        <?php else: ?>
+                            <button class="<?= e($cls) ?>" type="button" data-modal-close><?= e((string) $action['label']) ?></button>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                    <?php if ($modal['actions'] === []): ?>
+                        <button class="btn btn-primary" type="button" data-modal-close>OK</button>
+                    <?php endif; ?>
+                </div>
+                <?php if ($autoClose): ?><div class="modal-timer" aria-hidden="true"></div><?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <script src="<?= e(asset('js/app.js')) ?>" defer></script>
 </body>

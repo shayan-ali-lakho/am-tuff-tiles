@@ -16,15 +16,6 @@ $totalInput = price_input((int) $cart['total']);
 
 <section class="section">
     <div class="container">
-        <?php if ($errors !== []): ?>
-            <div class="alert alert-error" role="alert">
-                Please fix the highlighted fields and try again.
-                <?php if ($method === 'easypaisa'): ?>
-                    If you chose EasyPaisa, please attach your payment screenshot again.
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
         <div class="cart-layout">
             <form method="post" action="<?= e(url('/checkout')) ?>" class="form checkout-form" enctype="multipart/form-data" novalidate data-checkout-form>
                 <?= csrf_field() ?>

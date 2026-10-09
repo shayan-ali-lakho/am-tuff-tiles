@@ -77,9 +77,9 @@ final class OrderController
 
         try {
             Order::changeStatus((int) $order['id'], $new);
-            flash('success', 'Order ' . $order['order_number'] . ' is now ' . $new . '.' . ($new === 'cancelled' ? ' Stock was put back.' : ''));
+            notify('success', 'Order ' . ($new === 'cancelled' ? 'cancelled' : 'updated'), 'Order ' . $order['order_number'] . ' is now ' . $new . '.' . ($new === 'cancelled' ? ' Stock was put back.' : ''));
         } catch (RuntimeException $e) {
-            flash('error', $e->getMessage());
+            notify('error', 'Order not updated', $e->getMessage());
         }
 
         redirect('/admin/orders/' . (int) $order['id']);

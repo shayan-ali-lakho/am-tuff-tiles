@@ -92,7 +92,7 @@ final class CheckoutController
         ));
 
         if (count($recent) >= self::MAX_ORDERS_PER_HOUR) {
-            flash('error', 'You have placed several orders in a short time. Please call us to place more.');
+            notify('error', 'Too many orders', 'You have placed several orders in a short time. Please call us to place more.', [['label' => 'OK', 'primary' => true]]);
             redirect('/cart');
         }
 
@@ -180,6 +180,7 @@ final class CheckoutController
         if ($errors !== []) {
             flash('errors', $errors);
             flash('old', $in);
+            notify('error', 'Order not placed', 'Some details need fixing. Please check the highlighted fields' . ($method === 'easypaisa' ? ' and attach your payment screenshot again.' : '.'), [['label' => 'Fix details', 'primary' => true]]);
             redirect('/checkout');
         }
 
@@ -203,7 +204,7 @@ final class CheckoutController
                 ImageUploader::removeProof($proof);
             }
 
-            flash('error', $e->getMessage());
+            notify('error', 'Order not placed', $e->getMessage(), [['label' => 'Try again', 'href' => '/checkout', 'primary' => true], ['label' => 'Back to cart']]);
             flash('old', $in);
             redirect('/cart');
         }
@@ -221,6 +222,7 @@ final class CheckoutController
         \App\Core\Mailer::sendLater(static function () use ($number): void {
             Order::notify($number);
         });
+        notify('success', 'Order placed!', 'Your order number is ' . $number . '. We will call you on ' . $in['customer_phone'] . ' to confirm.', [['label' => 'View order details', 'primary' => true], ['label' => 'Continue shopping', 'href' => '/shop']]);
         redirect('/order/' . rawurlencode($number));
     }
 

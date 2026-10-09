@@ -175,6 +175,77 @@ function flash_get(string $key, mixed $default = null): mixed
     return $GLOBALS['__flash'][$key] ?? $default;
 }
 
+/**
+ * Queue a pop-up message (modal) for the NEXT page.
+ *
+ * $type    success | error | warning | info
+ * $actions buttons shown under the message, e.g. [['label' => 'View order', 'href' => '/order/AM-1', 'primary' => true]].
+ *          An action without "href" simply closes the pop-up. With no actions a success pop-up closes by itself.
+ */
+function notify(string $type, string $title, string $message = '', array $actions = []): void
+{
+    $type = in_array($type, ['success', 'error', 'warning', 'info'], true) ? $type : 'info';
+    flash('modal', ['type' => $type, 'title' => $title, 'message' => $message, 'actions' => $actions]);
+}
+
+/**
+ * The pop-up to show on this page, or null. An explicit notify() wins; otherwise the plain flash messages
+ * (success / warning / error / info) are turned into one. Any other messages are listed underneath as notes.
+ *
+ * @return array{type: string, title: string, message: string, notes: list<string>, actions: list<array<string, mixed>>}|null
+ */
+function modal_data(): ?array
+{
+    $titles = ['success' => 'Done', 'error' => 'Something went wrong', 'warning' => 'Please note', 'info' => 'Please note'];
+    $found = [];
+
+    foreach (['error', 'warning', 'success', 'info'] as $type) {
+        $text = flash_get($type);
+
+        if (is_string($text) && $text !== '') {
+            $found[$type] = $text;
+        }
+    }
+
+    $explicit = flash_get('modal');
+
+    if (is_array($explicit) && isset($explicit['type'], $explicit['title'])) {
+        $type = (string) $explicit['type'];
+        unset($found[$type]);
+
+        return [
+            'type'    => $type,
+            'title'   => (string) $explicit['title'],
+            'message' => (string) ($explicit['message'] ?? ''),
+            'notes'   => array_values($found),
+            'actions' => is_array($explicit['actions'] ?? null) ? array_values($explicit['actions']) : [],
+        ];
+    }
+
+    if ($found === []) {
+        return null;
+    }
+
+    $type = (string) array_key_first($found);
+    $message = $found[$type];
+    unset($found[$type]);
+
+    return ['type' => $type, 'title' => $titles[$type], 'message' => $message, 'notes' => array_values($found), 'actions' => []];
+}
+
+/** Round icon for a pop-up. */
+function modal_icon(string $type): string
+{
+    $paths = [
+        'success' => '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+        'error'   => '<path d="M6 6l12 12M18 6L6 18"/>',
+        'warning' => '<path d="M12 7v6"/><path d="M12 17.2v.01"/>',
+        'info'    => '<path d="M12 11v6"/><path d="M12 7.2v.01"/>',
+    ];
+
+    return '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . ($paths[$type] ?? $paths['info']) . '</svg>';
+}
+
 /** Accept only a local path like "/shop" for post-login redirects (blocks open redirects). */
 function safe_next(mixed $path, string $default = '/'): string
 {

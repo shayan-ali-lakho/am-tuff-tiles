@@ -66,6 +66,7 @@ final class ProductController
         if ($errors !== []) {
             flash('errors', $errors);
             flash('old', $old);
+            notify('error', 'Product not added', 'Please fix the highlighted fields. Any photos you selected need to be chosen again.', [['label' => 'OK', 'primary' => true]]);
             redirect('/admin/products/new');
         }
 
@@ -101,7 +102,7 @@ final class ProductController
         if ($errors !== []) {
             flash('errors', $errors);
             flash('old', $old);
-            flash('error', 'Please fix the highlighted fields. Any photos you selected need to be chosen again.');
+            notify('error', 'Product not saved', 'Please fix the highlighted fields. Any photos you selected need to be chosen again.', [['label' => 'OK', 'primary' => true]]);
             redirect('/admin/products/' . $productId . '/edit');
         }
 
@@ -118,7 +119,7 @@ final class ProductController
         $makeActive = (int) $product['is_active'] !== 1;
 
         Product::setActive((int) $product['id'], $makeActive);
-        flash('success', '"' . $product['name'] . '" is now ' . ($makeActive ? 'visible in the shop.' : 'hidden from the shop.'));
+        notify('success', $makeActive ? 'Product visible' : 'Product hidden', '"' . $product['name'] . '" is now ' . ($makeActive ? 'visible in the shop.' : 'hidden from the shop.'));
         redirect($this->backTo());
     }
 
@@ -134,7 +135,7 @@ final class ProductController
             ImageUploader::remove((string) $image['file_path']);
         }
 
-        flash('success', '"' . $product['name'] . '" was deleted.');
+        notify('success', 'Product deleted', '"' . $product['name'] . '" was deleted.');
         redirect('/admin/products');
     }
 
@@ -144,7 +145,7 @@ final class ProductController
         $image = $this->findImageOr404($product, $imageId);
 
         ProductImage::setPrimary((int) $product['id'], (int) $image['id']);
-        flash('success', 'Main photo updated.');
+        notify('success', 'Main photo updated', 'The main photo of this product was changed.');
         redirect('/admin/products/' . (int) $product['id'] . '/edit');
     }
 
@@ -156,7 +157,7 @@ final class ProductController
         ProductImage::delete((int) $product['id'], (int) $image['id']);
         ImageUploader::remove((string) $image['file_path']);
 
-        flash('success', 'Photo deleted.');
+        notify('success', 'Photo deleted', 'The photo was removed.');
         redirect('/admin/products/' . (int) $product['id'] . '/edit');
     }
 
@@ -312,7 +313,7 @@ final class ProductController
             $message .= ' ' . $saved . ($saved === 1 ? ' photo' : ' photos') . ' added.';
         }
 
-        flash('success', $message);
+        notify('success', str_starts_with($message, 'Product added') ? 'Product added' : 'Product saved', $message);
 
         if ($problems !== []) {
             flash('warning', 'Some photos were not added: ' . implode(' | ', $problems));

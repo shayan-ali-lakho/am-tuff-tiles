@@ -88,7 +88,7 @@ final class AuthController
         }
 
         Auth::login(Contact::find($id) ?? []);
-        flash('success', 'Welcome, ' . $name . '! Your account has been created.');
+        notify('success', 'Account created', 'Welcome, ' . $name . '! You are now logged in.');
         redirect($next);
     }
 
@@ -133,6 +133,7 @@ final class AuthController
         if ($contact === null || !$passwordOk || (int) $contact['is_active'] !== 1) {
             LoginAttempt::recordFailure($email, $ip);
             flash('errors', ['form' => 'Incorrect email or password.']);
+            notify('error', 'Login failed', 'The email or password is not correct. Please check and try again.', [['label' => 'Try again', 'primary' => true]]);
             flash('old', ['email' => $email]);
             redirect('/login' . ($requested !== '' ? '?next=' . rawurlencode($requested) : ''));
         }
@@ -144,7 +145,7 @@ final class AuthController
         }
 
         Auth::login($contact);
-        flash('success', 'Welcome back, ' . $contact['full_name'] . '.');
+        notify('success', 'Login successful', 'Welcome back, ' . $contact['full_name'] . '.');
 
         $default = $contact['portal_role'] === 'admin' ? '/admin' : '/';
         redirect($requested !== '' ? $requested : $default);
@@ -153,7 +154,7 @@ final class AuthController
     public function logout(): void
     {
         Auth::logout();
-        flash('success', 'You have been logged out.');
+        notify('success', 'Logged out', 'You have been logged out. See you again soon!');
         redirect('/');
     }
 
@@ -239,7 +240,7 @@ final class AuthController
             LoginAttempt::clear(strtolower((string) $contact['email']), (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'));
         }
 
-        flash('success', 'Your password was changed. Please log in with your new password.');
+        notify('success', 'Password changed', 'Your password was changed. Please log in with your new password.');
         redirect('/login');
     }
 

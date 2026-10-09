@@ -33,6 +33,7 @@ final class CartController
         $stock    = (int) $product['stock_qty'];
         $inCart   = (int) ($_SESSION['cart'][$id] ?? 0);
         $canAdd   = $stock - $inCart;
+        $added    = false;
 
         if ($canAdd <= 0) {
             flash('warning', 'You already have all ' . $stock . ' available in your cart.');
@@ -43,11 +44,13 @@ final class CartController
             $qty = $canAdd;
             flash('warning', 'Only ' . $stock . ' available, so we added ' . $canAdd . '.');
         } else {
-            flash('success', $product['name'] . ' was added to your cart.');
+            $added = true;
         }
 
         if (!Cart::add($id, $qty)) {
-            flash('error', 'Your cart is full. Please place your order or remove something first.');
+            notify('error', 'Cart is full', 'Your cart is full. Please place your order or remove something first.', [['label' => 'OK', 'primary' => true]]);
+        } elseif ($added) {
+            notify('success', 'Added to cart', $product['name'] . ' was added to your cart.', [['label' => 'Go to checkout', 'href' => '/checkout', 'primary' => true], ['label' => 'Continue shopping', 'href' => '/shop']]);
         }
 
         redirect('/cart');
@@ -66,7 +69,7 @@ final class CartController
     public function remove(): void
     {
         Cart::remove((int) ($_POST['product_id'] ?? 0));
-        flash('success', 'Item removed from your cart.');
+        notify('success', 'Removed', 'Item removed from your cart.');
         redirect('/cart');
     }
 
