@@ -1482,3 +1482,9 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
 .section-head h2::after { transform-origin: left; }
 .js .reveal.is-visible .section-head h2::after, .js .section-head.is-visible h2::after { animation: growLine 0.8s 0.2s var(--ease) both; }
 @keyframes growLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Narrower side margins: about half of before on desktop */
+:root { --container: 1680px; }
+.container { padding: 0 clamp(1rem, 4.5vw, 4rem); }
+@media (min-width: 1024px) { .container { padding: 0 clamp(1.5rem, 4.4vw, 4rem); } }
+@media (max-width: 560px) { .container { padding: 0 0.75rem; } }
