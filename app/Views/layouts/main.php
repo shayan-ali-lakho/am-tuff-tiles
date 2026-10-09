@@ -23,7 +23,7 @@ $instagram = social_url('instagram');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($pageDescription) ?>">
-    <meta name="theme-color" content="#16222e">
+    <meta name="theme-color" content="#f5f2ec">
     <?php if (!empty($seo['robots'])): ?><meta name="robots" content="<?= e($seo['robots']) ?>">
     <?php else: ?><meta name="robots" content="index, follow, max-image-preview:large">
     <?php endif; ?>
@@ -47,7 +47,7 @@ $instagram = social_url('instagram');
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Montserrat:wght@600;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= e(asset('css/style.css')) ?>">
 </head>
 <body>
