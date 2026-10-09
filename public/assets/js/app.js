@@ -348,7 +348,7 @@ document.addEventListener('submit', function (event) {
     var selectors = [
         '.section-head',
         '.card-grid > li',
-        '.product-grid > li',
+        '.product-grid:not(.carousel-track) > li',
         '.about-intro > *',
         '.about-points > li',
         '.about-cta',
@@ -548,5 +548,44 @@ document.addEventListener('submit', function (event) {
             button.disabled = false;
             button.textContent = buttonText;
         }
+    });
+})();
+
+// Featured products: arrows scroll the row one card at a time; arrows only show when there is more to see
+(function () {
+    document.querySelectorAll('[data-carousel]').forEach(function (carousel) {
+        var track = carousel.querySelector('[data-carousel-track]');
+        var prev = carousel.querySelector('[data-carousel-prev]');
+        var next = carousel.querySelector('[data-carousel-next]');
+
+        if (!track || !prev || !next) {
+            return;
+        }
+
+        function update() {
+            var max = track.scrollWidth - track.clientWidth;
+            var overflow = max > 4;
+
+            prev.hidden = !overflow;
+            next.hidden = !overflow;
+            prev.disabled = track.scrollLeft <= 4;
+            next.disabled = track.scrollLeft >= max - 4;
+        }
+
+        function step(direction) {
+            var card = track.querySelector('li');
+            var gap = parseFloat(window.getComputedStyle(track).columnGap) || 0;
+            var amount = card ? card.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
+            var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            track.scrollBy({ left: direction * amount, behavior: reduced ? 'auto' : 'smooth' });
+        }
+
+        prev.addEventListener('click', function () { step(-1); });
+        next.addEventListener('click', function () { step(1); });
+        track.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        window.addEventListener('load', update);
+        update();
     });
 })();

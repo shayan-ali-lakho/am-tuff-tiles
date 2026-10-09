@@ -1133,3 +1133,64 @@ body.modal-open { overflow: hidden; }
     .js .modal.is-success .modal-icon svg path { stroke-dashoffset: 0; }
     .modal-timer { display: none; }
 }
+
+/* Featured products: centred row with arrows, tile-pattern band at the sides */
+.section-featured {
+    background:
+        radial-gradient(520px 320px at 0% 50%, rgba(216, 12, 12, 0.10), transparent 70%),
+        radial-gradient(520px 320px at 100% 50%, rgba(255, 106, 95, 0.12), transparent 70%),
+        linear-gradient(rgba(22, 34, 46, 0.045) 1px, transparent 1px) 0 0 / 56px 56px,
+        linear-gradient(90deg, rgba(22, 34, 46, 0.045) 1px, transparent 1px) 0 0 / 56px 56px,
+        var(--bg-alt);
+}
+.carousel { position: relative; }
+.carousel-track {
+    display: flex;
+    justify-content: safe center;
+    gap: 1.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 0.6rem 0.25rem 1.1rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track > li { flex: 0 0 min(270px, 78%); scroll-snap-align: center; }
+.carousel-btn {
+    position: absolute;
+    top: 42%;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 0;
+    color: #fff;
+    background: linear-gradient(135deg, var(--navy), var(--navy-2));
+    box-shadow: 0 6px 18px rgba(15, 24, 34, 0.35);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: transform 0.25s var(--ease), background 0.25s, opacity 0.25s;
+}
+.carousel-btn[hidden] { display: none; }
+.carousel-btn:hover:not(:disabled) { background: var(--accent-strong); transform: translateY(-50%) scale(1.1); }
+.carousel-btn:disabled { opacity: 0.3; cursor: default; }
+.carousel-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.carousel-prev { left: -14px; }
+.carousel-next { right: -14px; }
+
+/* Phones: two product cards side by side */
+@media (max-width: 560px) {
+    .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .product-card-body { padding: 0.7rem 0.75rem 0.8rem; }
+    .product-card-title { font-size: 0.95rem; }
+    .product-card-desc { font-size: 0.82rem; -webkit-line-clamp: 2; }
+    .product-card-cat { font-size: 0.68rem; }
+    .product-price { font-size: 1rem; }
+    .carousel-track { gap: 0.75rem; }
+    .carousel-track > li { flex-basis: calc((100% - 0.75rem) / 2); }
+    .carousel-btn { width: 40px; height: 40px; }
+    .carousel-prev { left: -8px; }
+    .carousel-next { right: -8px; }
+}

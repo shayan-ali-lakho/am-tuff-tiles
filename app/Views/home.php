@@ -58,7 +58,7 @@
 </section>
 
 <?php if ($featured !== []): ?>
-    <section class="section section-alt">
+    <section class="section section-alt section-featured">
         <div class="container">
             <div class="section-head section-head-row">
                 <div>
@@ -68,11 +68,19 @@
                 <a class="btn btn-secondary btn-sm" href="<?= e(url('/shop')) ?>">View all products</a>
             </div>
 
-            <ul class="product-grid">
-                <?php foreach ($featured as $product): ?>
-                    <?= partial('shop/_card', ['product' => $product]) ?>
-                <?php endforeach; ?>
-            </ul>
+            <div class="carousel" data-carousel>
+                <button class="carousel-btn carousel-prev" type="button" data-carousel-prev aria-label="Previous products" hidden>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+                </button>
+                <ul class="product-grid carousel-track" data-carousel-track>
+                    <?php foreach ($featured as $product): ?>
+                        <?= partial('shop/_card', ['product' => $product]) ?>
+                    <?php endforeach; ?>
+                </ul>
+                <button class="carousel-btn carousel-next" type="button" data-carousel-next aria-label="Next products" hidden>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
         </div>
     </section>
 <?php endif; ?>

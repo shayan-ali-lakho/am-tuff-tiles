@@ -15,7 +15,7 @@ final class HomeController
         // The home page must still open if the database has a problem, so fall back to a fixed list.
         try {
             $categories = Category::forShop();
-            $featured   = Product::featured(4);
+            $featured   = Product::featured(12);
             $hero       = $this->heroCircles($categories);
         } catch (Throwable $e) {
             error_log('Home page could not load shop data: ' . $e->getMessage());
