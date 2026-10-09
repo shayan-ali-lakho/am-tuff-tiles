@@ -2,7 +2,7 @@
 /** @var string $content */
 $siteName = (string) config('app.name');
 $pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : 'Tuff Tiles, Doors & Metal Gates in Karachi | ' . $siteName;
-$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates and roof ceilings. Browse prices in PKR and order online with cash on delivery.';
+$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates and roof ceilings. Browse prices in PKR and order online, no account needed. Pay by ' . (easypaisa()['enabled'] ? 'cash on delivery or EasyPaisa' : 'cash on delivery') . '.';
 $seo = seo();
 $canonical = (string) ($seo['canonical'] ?? (site_url() . (current_path() === '/' ? '/' : current_path())));
 $ogImage = (string) ($seo['image'] ?? (site_url() . asset_path('img/og-default.jpg')));
@@ -23,7 +23,7 @@ $instagram = social_url('instagram');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($pageDescription) ?>">
-    <meta name="theme-color" content="#1F2933">
+    <meta name="theme-color" content="#16222e">
     <?php if (!empty($seo['robots'])): ?><meta name="robots" content="<?= e($seo['robots']) ?>">
     <?php else: ?><meta name="robots" content="index, follow, max-image-preview:large">
     <?php endif; ?>
@@ -65,8 +65,8 @@ $instagram = social_url('instagram');
                 <?php endif; ?>
             </a>
 
-            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
-                <span class="nav-toggle-label">Menu</span>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+                <span class="nav-toggle-bar" aria-hidden="true"></span>
             </button>
 
             <nav id="site-nav" class="site-nav" aria-label="Main">

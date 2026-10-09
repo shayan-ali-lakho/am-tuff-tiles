@@ -133,6 +133,18 @@ function price_input(int $paisa): string
     return $paisa % 100 === 0 ? (string) intdiv($paisa, 100) : number_format($paisa / 100, 2, '.', '');
 }
 
+/** EasyPaisa account details from the settings; the option is only offered at checkout when a number is set. */
+function easypaisa(): array
+{
+    $number = trim((string) config('shop.easypaisa_number'));
+
+    return [
+        'enabled' => $number !== '',
+        'number'  => $number,
+        'name'    => trim((string) config('shop.easypaisa_name')),
+    ];
+}
+
 /** Public URL of a stored photo (path as saved in product_images.file_path). */
 function upload_url(string $path, bool $thumb = false): string
 {
@@ -359,9 +371,9 @@ function business_schema(): array
         'url'                => $site . '/',
         'logo'               => $site . asset_path('img/logo.png'),
         'image'              => $site . asset_path('img/og-default.jpg'),
-        'description'        => 'Tuff tiles, doors, garden products, metal gates, roof ceilings and more. Prices in PKR, cash on delivery.',
+        'description'        => 'Tuff tiles, doors, garden products, metal gates, roof ceilings and more. Prices in PKR, ' . (easypaisa()['enabled'] ? 'cash on delivery or EasyPaisa' : 'cash on delivery') . '.',
         'currenciesAccepted' => 'PKR',
-        'paymentAccepted'    => 'Cash on delivery',
+        'paymentAccepted'    => easypaisa()['enabled'] ? 'Cash on delivery, EasyPaisa' : 'Cash on delivery',
         'address'            => ['@type' => 'PostalAddress', 'addressLocality' => 'Karachi', 'addressCountry' => 'PK'],
         'geo'                => ['@type' => 'GeoCoordinates', 'latitude' => 24.917186842983497, 'longitude' => 66.96014607642219],
     ];

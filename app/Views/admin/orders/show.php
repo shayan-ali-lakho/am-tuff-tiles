@@ -7,13 +7,21 @@ $labels = ['pending' => ['New', 'badge-warn'], 'confirmed' => ['Confirmed', 'bad
 $next = Order::TRANSITIONS[$order['status']] ?? [];
 $buttons = ['confirmed' => ['Confirm order', 'btn-primary', null], 'completed' => ['Mark as completed (delivered and paid)', 'btn-primary', null], 'cancelled' => ['Cancel order', 'btn-secondary', 'Cancel this order? The stock will be put back.']];
 $when = static fn (?string $v): string => $v ? date('j M Y, g:i a', strtotime($v)) : '';
+
+$isEasy  = $order['payment_method'] === 'easypaisa';
+$total   = (int) $order['total_paisa'];
+$paid    = $isEasy ? (int) $order['paid_paisa'] : 0;
+$balance = max(0, $total - $paid);
+$hasProof = $isEasy && !empty($order['payment_proof']);
+$proofUrl = url('/admin/orders/' . $order['id'] . '/proof');
+$email = trim((string) $order['customer_email']);
 ?>
 <?= partial('admin/_nav', ['active' => 'orders']) ?>
 
 <section class="page-head">
     <div class="container">
         <h1>Order <?= e($order['order_number']) ?></h1>
-        <p class="page-head-sub"><span class="badge <?= e($class) ?>"><?= e($label) ?></span> Placed <?= e($when($order['placed_at'])) ?></p>
+        <p class="page-head-sub"><span class="badge <?= e($class) ?>"><?= e($label) ?></span> <?php if ($isEasy): ?><span class="badge badge-ep">EasyPaisa</span> <?php endif; ?>Placed <?= e($when($order['placed_at'])) ?></p>
     </div>
 </section>
 
@@ -32,7 +40,11 @@ $when = static fn (?string $v): string => $v ? date('j M Y, g:i a', strtotime($v
                 <dl class="summary-rows">
                     <div><dt>Subtotal</dt><dd><?= e(money((int) $order['subtotal_paisa'])) ?></dd></div>
                     <div><dt>Delivery</dt><dd><?= (int) $order['delivery_paisa'] > 0 ? e(money((int) $order['delivery_paisa'])) : 'Free' ?></dd></div>
-                    <div class="summary-total"><dt>Collect on delivery</dt><dd><?= e(money((int) $order['total_paisa'])) ?></dd></div>
+                    <div class="summary-total"><dt>Order total</dt><dd><?= e(money($total)) ?></dd></div>
+                    <?php if ($isEasy): ?>
+                        <div><dt>Sent by EasyPaisa (customer says)</dt><dd><?= e(money($paid)) ?></dd></div>
+                    <?php endif; ?>
+                    <div class="summary-total"><dt>Collect on delivery</dt><dd><?= e(money($balance)) ?></dd></div>
                 </dl>
 
                 <h3>Timeline</h3>
@@ -47,15 +59,34 @@ $when = static fn (?string $v): string => $v ? date('j M Y, g:i a', strtotime($v
             <aside class="summary-card">
                 <h2>Customer</h2>
                 <p>
-                    <strong><?= e($order['customer_name']) ?></strong><br>
+                    <strong><?= e($order['customer_name']) ?></strong><?= $order['contact_id'] === null ? ' <span class="muted">(guest, no account)</span>' : '' ?><br>
                     <a href="tel:<?= e($order['customer_phone']) ?>"><?= e($order['customer_phone']) ?></a><br>
-                    <a href="mailto:<?= e($order['customer_email']) ?>"><?= e($order['customer_email']) ?></a>
+                    <?php if ($email !== ''): ?>
+                        <a href="mailto:<?= e($email) ?>"><?= e($email) ?></a>
+                    <?php else: ?>
+                        <span class="muted">No email given</span>
+                    <?php endif; ?>
                 </p>
                 <h3>Deliver to</h3>
                 <p><?= e($order['shipping_address']) ?><br><?= e($order['shipping_city']) ?></p>
                 <?php if (!empty($order['notes'])): ?>
                     <h3>Customer notes</h3>
                     <p><?= nl2br(e($order['notes'])) ?></p>
+                <?php endif; ?>
+
+                <h3>Payment</h3>
+                <?php if ($isEasy): ?>
+                    <p>EasyPaisa. The customer says they sent <strong><?= e(money($paid)) ?></strong>. Compare the screenshot with your EasyPaisa account before you confirm the order.</p>
+                    <?php if ($hasProof): ?>
+                        <a class="proof-link" href="<?= e($proofUrl) ?>" target="_blank" rel="noopener">
+                            <img class="proof-img" src="<?= e($proofUrl) ?>" alt="EasyPaisa payment screenshot for order <?= e($order['order_number']) ?>">
+                        </a>
+                        <p class="field-hint">Click the screenshot to open it full size.</p>
+                    <?php else: ?>
+                        <p class="muted">No screenshot is stored for this order.</p>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <p>Cash on delivery. Collect <strong><?= e(money($total)) ?></strong> when the order is delivered.</p>
                 <?php endif; ?>
 
                 <h3>Update status</h3>

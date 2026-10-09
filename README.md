@@ -59,7 +59,8 @@ and statements should be safe to run twice (`CREATE TABLE IF NOT EXISTS`, `INSER
 Conventions:
 
 - Money is stored as whole numbers in paisa (PKR 1,250 = `125000`). `money()` formats it for display.
-- Order statuses: `pending`, `confirmed`, `completed`, `cancelled`. Payment is cash on delivery.
+- Order statuses: `pending`, `confirmed`, `completed`, `cancelled`. Payment is cash on delivery (`cod`) or EasyPaisa (`easypaisa`).
+- Orders can be placed by guests: `orders.contact_id` is empty for them (migration 004).
 - Monthly reports count revenue from `completed` orders by `completed_at`, and orders received by `placed_at`.
 - The database clock is set to the site timezone (`APP_TIMEZONE`, default Asia/Karachi) on every connection.
 - Deleting a product removes its images but keeps old orders readable. Contacts with orders cannot be deleted.
@@ -111,15 +112,25 @@ To run the site with larger photos, PHP needs `upload_max_filesize` and `post_ma
   (WhatsApp, call, email) taken from `SHOP_PHONE`, `SHOP_WHATSAPP` and `SHOP_EMAIL` in `.env`.
 - The Home page shows the active categories and featured products, and still opens if the database is down.
 
-## Cart and checkout (cash on delivery)
+## Cart and checkout (cash on delivery or EasyPaisa, no account needed)
 
 - Cart (`/cart`): kept in the session as product id and quantity only. Names, prices and stock are read from the database every
   time, so prices cannot be changed by the visitor. Hidden or sold-out items are removed and quantities lowered, with a notice.
-- Checkout (`/checkout`): login required (the cart survives login or registration). Delivery details are validated, then the order
-  is saved in one transaction that locks the products, checks and reduces stock, and stores a name/price snapshot of every line.
-  The last unit can never be sold twice.
+- Checkout (`/checkout`): no login needed (logged-in customers get their details pre-filled and see the order under My orders).
+  The email is optional. Delivery details are validated, then the order is saved in one transaction that locks the products,
+  checks and reduces stock, and stores a name/price snapshot of every line. The last unit can never be sold twice.
+  A hidden honeypot field and a limit of 5 orders per hour per browser session slow down spam, and the Place order button
+  disables itself after the first click so a slow upload cannot create two orders.
+- EasyPaisa: set `SHOP_EASYPAISA_NUMBER` (and `SHOP_EASYPAISA_NAME`) in `.env`; the option only appears at checkout when a number
+  is set. The customer sends an advance or the full amount, enters the amount and attaches a screenshot. The screenshot is
+  checked, re-encoded as a JPEG and saved in `storage/payment-proofs/` (outside the public folder, never served directly).
+  Admins see it on the order page through `/admin/orders/{id}/proof`. The balance to collect on delivery is the total minus
+  the amount the customer says they sent. Nothing is marked as paid automatically: the admin compares the screenshot with the
+  EasyPaisa account before confirming.
 - Delivery charge: `settings.delivery_charge_paisa` (0 = free).
-- `/order/{number}` (only the owner can open it) and `/orders` (My orders). Order numbers look like `AM-261008-1A2B3C`.
+- `/order/{number}`: opened by the customer who just placed the order (the number is remembered in their session) or by the
+  logged-in owner; anyone else gets a 404. `/orders` (My orders) needs a login. Order numbers look like `AM-261008-1A2B3C`.
+- After deploying this update run `php bin/migrate.php` once (migration 004 allows guest orders and adds the EasyPaisa columns).
 
 ## Admin: orders and monthly report
 

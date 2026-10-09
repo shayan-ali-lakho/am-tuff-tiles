@@ -24,7 +24,7 @@ $router->get('/about', [PageController::class, 'about']);
 $router->get('/shop', [ShopController::class, 'index']);
 $router->get('/product/{slug}', [ShopController::class, 'show']);
 
-// Cart and checkout (cash on delivery)
+// Cart and checkout (no account needed; cash on delivery or EasyPaisa)
 $router->get('/cart', [CartController::class, 'show']);
 $router->post('/cart/add', [CartController::class, 'add']);
 $router->post('/cart/update', [CartController::class, 'update']);
@@ -64,6 +64,7 @@ $router->post('/admin/products/{id}/images/{imageId}/delete', [ProductController
 
 $router->get('/admin/orders', [OrderController::class, 'index']);
 $router->get('/admin/orders/{id}', [OrderController::class, 'show']);
+$router->get('/admin/orders/{id}/proof', [OrderController::class, 'proof']);
 $router->post('/admin/orders/{id}/status', [OrderController::class, 'status']);
 
 $router->get('/admin/reports', [ReportController::class, 'index']);

@@ -26,19 +26,25 @@ final class Order
     }
 
     /**
-     * Place a cash-on-delivery order for the cart, in one transaction: the products are locked,
+     * Place an order for the cart, in one transaction: the products are locked,
      * stock is checked and reduced, and the order and its lines are saved together or not at all.
      *
+     * $contactId is null for a guest order. Payment is cash on delivery ('cod') or EasyPaisa ('easypaisa');
+     * for EasyPaisa the customer's screenshot path and the amount they sent (in paisa) are saved too.
+     *
      * @param array<int, int> $cart product id => quantity
-     * @param array{name: string, phone: string, email: string, address: string, city: string, notes: string} $details
+     * @param array{name: string, phone: string, email: string, address: string, city: string, notes: string, payment?: array{method: string, proof: ?string, paid_paisa: int}} $details
      * @return string the order number
      * @throws RuntimeException with a message that is safe to show to the customer
      */
-    public static function place(int $contactId, array $cart, array $details): string
+    public static function place(?int $contactId, array $cart, array $details): string
     {
         if ($cart === []) {
             throw new RuntimeException('Your cart is empty.');
         }
+
+        $payment = $details['payment'] ?? ['method' => 'cod', 'proof' => null, 'paid_paisa' => 0];
+        $method  = ($payment['method'] ?? 'cod') === 'easypaisa' ? 'easypaisa' : 'cod';
 
         $pdo = Database::connection();
         $pdo->beginTransaction();
@@ -99,14 +105,19 @@ final class Order
                 throw new RuntimeException('Could not create the order number. Please try again.');
             }
 
+            // What the customer says they sent by EasyPaisa can never be more than the order total
+            $paid  = $method === 'easypaisa' ? min(max(0, (int) ($payment['paid_paisa'] ?? 0)), $total) : 0;
+            $proof = $method === 'easypaisa' ? ($payment['proof'] ?? null) : null;
+
             $pdo->prepare(
                 'INSERT INTO orders (order_number, contact_id, customer_name, customer_phone, customer_email,
-                                     shipping_address, shipping_city, notes, status, payment_method,
+                                     shipping_address, shipping_city, notes, status, payment_method, payment_proof, paid_paisa,
                                      subtotal_paisa, delivery_paisa, total_paisa)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, \'pending\', \'cod\', ?, ?, ?)'
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, \'pending\', ?, ?, ?, ?, ?, ?)'
             )->execute([
                 $number, $contactId, $details['name'], $details['phone'], $details['email'],
                 $details['address'], $details['city'], $details['notes'] !== '' ? $details['notes'] : null,
+                $method, $proof, $paid,
                 $subtotal, $delivery, $total,
             ]);
 
@@ -138,12 +149,15 @@ final class Order
         }
     }
 
-    /** One order with its lines, only if it belongs to this contact. */
-    public static function findForContact(string $number, int $contactId): ?array
+    /**
+     * One order with its lines, by order number. The caller must check that the visitor may see it
+     * (the customer who just placed it, or the logged-in owner); the order number alone is not a secret.
+     */
+    public static function findByNumber(string $number): ?array
     {
         $pdo = Database::connection();
-        $st  = $pdo->prepare('SELECT * FROM orders WHERE order_number = ? AND contact_id = ?');
-        $st->execute([$number, $contactId]);
+        $st  = $pdo->prepare('SELECT * FROM orders WHERE order_number = ?');
+        $st->execute([$number]);
         $order = $st->fetch();
 
         if (!$order) {
@@ -327,29 +341,49 @@ final class Order
             $money = static fn (int $p): string => money($p);
             $delivery = (int) $order['delivery_paisa'] > 0 ? $money((int) $order['delivery_paisa']) : 'Free';
 
+            $total     = (int) $order['total_paisa'];
+            $isEasy    = $order['payment_method'] === 'easypaisa';
+            $paid      = $isEasy ? (int) $order['paid_paisa'] : 0;
+            $balance   = max(0, $total - $paid);
+            $email     = trim((string) $order['customer_email']);
+
             $shopEmail = (string) config('shop.email');
             if ($shopEmail !== '') {
                 $admin = \App\Core\Mailer::baseUrl() . '/admin/orders/' . $order['id'];
+                $shopPayment = $isEasy
+                    ? 'Payment: EasyPaisa. The customer says they sent ' . $money($paid) . ". Check their screenshot on the order page before confirming.\nBalance to collect on delivery: " . $money($balance)
+                    : 'Payment: cash on delivery. Total to collect: ' . $money($total);
+
                 \App\Core\Mailer::send(
                     $shopEmail,
-                    'New order ' . $number . ' (' . $money((int) $order['total_paisa']) . ')',
-                    "A new cash-on-delivery order was placed.\n\nOrder: $number\nCustomer: {$order['customer_name']}\nPhone: {$order['customer_phone']}\nEmail: {$order['customer_email']}\n"
+                    'New order ' . $number . ' (' . $money($total) . ')' . ($isEasy ? ' - EasyPaisa' : ''),
+                    "A new order was placed.\n\nOrder: $number\nCustomer: {$order['customer_name']}\nPhone: {$order['customer_phone']}\n"
+                    . ($email !== '' ? "Email: $email\n" : '')
                     . "Address: {$order['shipping_address']}, {$order['shipping_city']}\n"
                     . ($order['notes'] ? "Notes: {$order['notes']}\n" : '')
-                    . "\nItems:\n$items\n\nDelivery: $delivery\nTotal to collect: " . $money((int) $order['total_paisa'])
+                    . "\nItems:\n$items\n\nDelivery: $delivery\nOrder total: " . $money($total)
+                    . "\n$shopPayment"
                     . "\n\nOpen the order: $admin\n",
-                    (string) $order['customer_email']
+                    $email !== '' ? $email : null
                 );
             }
 
-            \App\Core\Mailer::send(
-                (string) $order['customer_email'],
-                'Your ' . $site . ' order ' . $number,
-                "Hello {$order['customer_name']},\n\nThank you for your order. We will call you on {$order['customer_phone']} to confirm it.\n\n"
-                . "Order: $number\n\nItems:\n$items\n\nDelivery: $delivery\nTotal to pay on delivery (cash): " . $money((int) $order['total_paisa'])
-                . "\n\nDelivering to: {$order['shipping_address']}, {$order['shipping_city']}\n\n$site\n",
-                $shopEmail !== '' ? $shopEmail : null
-            );
+            // The customer's email is optional; without one there is nobody to send the confirmation to
+            if ($email !== '') {
+                $customerPayment = $isEasy
+                    ? 'You told us you sent ' . $money($paid) . " by EasyPaisa. We will check your payment screenshot and call you to confirm.\nBalance to pay on delivery (cash): " . $money($balance)
+                    : 'Total to pay on delivery (cash): ' . $money($total);
+
+                \App\Core\Mailer::send(
+                    $email,
+                    'Your ' . $site . ' order ' . $number,
+                    "Hello {$order['customer_name']},\n\nThank you for your order. We will call you on {$order['customer_phone']} to confirm it.\n\n"
+                    . "Order: $number\n\nItems:\n$items\n\nDelivery: $delivery\nOrder total: " . $money($total)
+                    . "\n$customerPayment"
+                    . "\n\nDelivering to: {$order['shipping_address']}, {$order['shipping_city']}\n\n$site\n",
+                    $shopEmail !== '' ? $shopEmail : null
+                );
+            }
         } catch (Throwable $e) {
             error_log('Order emails failed: ' . $e->getMessage());
         }

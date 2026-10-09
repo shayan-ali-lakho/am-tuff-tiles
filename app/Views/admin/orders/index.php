@@ -21,7 +21,7 @@ $pageUrl = static fn (int $n): string => url('/admin/orders?' . http_build_query
 <section class="page-head">
     <div class="container">
         <h1>Orders</h1>
-        <p class="page-head-sub">Cash on delivery. Open an order to confirm, complete or cancel it.</p>
+        <p class="page-head-sub">Open an order to check the payment, then confirm, complete or cancel it.</p>
     </div>
 </section>
 
@@ -52,7 +52,7 @@ $pageUrl = static fn (int $n): string => url('/admin/orders?' . http_build_query
         <?php else: ?>
             <div class="table-wrap">
                 <table class="table">
-                    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>City</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+                    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>City</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
                     <tbody>
                     <?php foreach ($orders as $o): [$label, $class] = $labels[$o['status']] ?? [(string) $o['status'], 'badge-off']; ?>
                         <tr>
@@ -62,6 +62,13 @@ $pageUrl = static fn (int $n): string => url('/admin/orders?' . http_build_query
                             <td><?= e($o['shipping_city']) ?></td>
                             <td><?= e($o['item_count']) ?></td>
                             <td><?= e(money((int) $o['total_paisa'])) ?></td>
+                            <td>
+                                <?php if ($o['payment_method'] === 'easypaisa'): ?>
+                                    <span class="badge badge-ep">EasyPaisa</span><br><span class="muted"><?= e(money((int) $o['paid_paisa'])) ?> sent</span>
+                                <?php else: ?>
+                                    Cash
+                                <?php endif; ?>
+                            </td>
                             <td><span class="badge <?= e($class) ?>"><?= e($label) ?></span></td>
                         </tr>
                     <?php endforeach; ?>

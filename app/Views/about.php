@@ -26,7 +26,7 @@ $instagram = social_url('instagram');
             </p>
             <p>
                 We keep ordering simple. Browse the shop, see clear prices in PKR, add what you need to your cart
-                and pay in cash when your order is delivered.
+                and order without creating an account. Pay in cash when your order is delivered<?= easypaisa()['enabled'] ? ', or send an advance by EasyPaisa' : '' ?>.
             </p>
             <p class="about-actions">
                 <a class="btn btn-primary" href="<?= e(url('/shop')) ?>">Visit the shop</a>
@@ -74,12 +74,12 @@ $instagram = social_url('instagram');
                 <p>Every product shows its price in PKR, with size and material so you know what you are buying.</p>
             </li>
             <li>
-                <h3>Pay on delivery</h3>
-                <p>No online payment needed. You pay in cash when your order arrives.</p>
+                <h3><?= easypaisa()['enabled'] ? 'Flexible payment' : 'Pay on delivery' ?></h3>
+                <p><?= easypaisa()['enabled'] ? 'Pay in cash when your order arrives, or send an advance or the full amount by EasyPaisa.' : 'No online payment needed. You pay in cash when your order arrives.' ?></p>
             </li>
             <li>
                 <h3>Easy ordering</h3>
-                <p>Pick your products, enter your delivery address and we call you to confirm your order.</p>
+                <p>Pick your products, enter your delivery address (no account needed) and we call you to confirm your order.</p>
             </li>
             <li>
                 <h3>Help when you need it</h3>

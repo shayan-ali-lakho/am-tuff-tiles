@@ -19,6 +19,9 @@ return [
         'phone'    => Env::get('SHOP_PHONE') ?: '03003715684',
         'whatsapp' => Env::get('SHOP_WHATSAPP') ?: '+923003715684',
         'address'  => Env::get('SHOP_ADDRESS', ''),
+        // EasyPaisa account that customers send payment to. The EasyPaisa option at checkout only appears when a number is set.
+        'easypaisa_number' => Env::get('SHOP_EASYPAISA_NUMBER') ?: '',
+        'easypaisa_name'   => Env::get('SHOP_EASYPAISA_NAME') ?: '',
         'facebook'  => Env::get('SHOP_FACEBOOK') ?: 'https://www.facebook.com/p/AM-Tuff-Tiles-61555668119271/',
         'instagram' => Env::get('SHOP_INSTAGRAM') ?: 'https://www.instagram.com/amtufftiles/',
         // Map: either a ready "embed" address from Google Maps, or a place/address text to search for

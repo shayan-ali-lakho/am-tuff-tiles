@@ -85,7 +85,7 @@ $whatsapp = preg_replace('/\D+/', '', (string) config('shop.whatsapp'));
                         <input id="buy-qty" class="qty-input" type="number" name="qty" value="1" min="1" max="<?= e(min(999, $stock)) ?>" inputmode="numeric">
                         <button class="btn btn-primary" type="submit">Add to cart</button>
                     </form>
-                    <p class="field-hint">Cash on delivery.</p>
+                    <p class="field-hint">No account needed. <?= easypaisa()['enabled'] ? 'Cash on delivery or EasyPaisa.' : 'Cash on delivery.' ?></p>
                 <?php endif; ?>
 
                 <?php if ($whatsapp !== '' || $phone !== '' || $email !== ''): ?>

@@ -3,8 +3,12 @@
  * @var array{lines: list<array<string, mixed>>, subtotal: int, delivery: int, total: int, notices: list<string>} $cart
  * @var array<string, string> $errors
  * @var array<string, string> $old
+ * @var bool $isGuest
+ * @var array{enabled: bool, number: string, name: string} $easypaisa
  */
 $f = static fn (string $k): string => e($old[$k] ?? '');
+$method = ($old['payment_method'] ?? 'cod') === 'easypaisa' && $easypaisa['enabled'] ? 'easypaisa' : 'cod';
+$totalInput = price_input((int) $cart['total']);
 ?>
 <section class="page-head">
     <div class="container"><h1>Checkout</h1></div>
@@ -13,13 +17,22 @@ $f = static fn (string $k): string => e($old[$k] ?? '');
 <section class="section">
     <div class="container">
         <?php if ($errors !== []): ?>
-            <div class="alert alert-error" role="alert">Please fix the highlighted fields and try again.</div>
+            <div class="alert alert-error" role="alert">
+                Please fix the highlighted fields and try again.
+                <?php if ($method === 'easypaisa'): ?>
+                    If you chose EasyPaisa, please attach your payment screenshot again.
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
 
         <div class="cart-layout">
-            <form method="post" action="<?= e(url('/checkout')) ?>" class="form checkout-form" novalidate>
+            <form method="post" action="<?= e(url('/checkout')) ?>" class="form checkout-form" enctype="multipart/form-data" novalidate data-checkout-form>
                 <?= csrf_field() ?>
                 <h2>Delivery details</h2>
+
+                <?php if ($isGuest): ?>
+                    <p class="guest-note">No account needed. Just fill in your details below to place your order.</p>
+                <?php endif; ?>
 
                 <div class="field">
                     <label for="customer_name">Full name</label>
@@ -35,8 +48,9 @@ $f = static fn (string $k): string => e($old[$k] ?? '');
                 </div>
 
                 <div class="field">
-                    <label for="customer_email">Email</label>
-                    <input id="customer_email" name="customer_email" type="email" autocomplete="email" required maxlength="190" value="<?= $f('customer_email') ?>"<?= error_attrs($errors, 'customer_email') ?>>
+                    <label for="customer_email">Email <span class="optional">(optional)</span></label>
+                    <input id="customer_email" name="customer_email" type="email" autocomplete="email" maxlength="190" value="<?= $f('customer_email') ?>"<?= error_attrs($errors, 'customer_email') ?>>
+                    <p class="field-hint">We email your order summary here.</p>
                     <?= field_error($errors, 'customer_email') ?>
                 </div>
 
@@ -58,9 +72,84 @@ $f = static fn (string $k): string => e($old[$k] ?? '');
                     <?= field_error($errors, 'notes') ?>
                 </div>
 
-                <div class="pay-note"><strong>Payment: cash on delivery.</strong> You pay when your order arrives.</div>
+                <?php if ($easypaisa['enabled']): ?>
+                    <fieldset class="pay-options">
+                        <legend>Payment</legend>
+                        <div class="pay-options-grid">
+                            <label class="pay-option">
+                                <input type="radio" name="payment_method" value="cod"<?= $method === 'cod' ? ' checked' : '' ?>>
+                                <span class="pay-option-card">
+                                    <span class="pay-dot" aria-hidden="true"></span>
+                                    <span>
+                                        <span class="pay-option-title">Cash on delivery</span>
+                                        <span class="pay-option-text">You pay when your order arrives.</span>
+                                    </span>
+                                </span>
+                            </label>
+                            <label class="pay-option pay-option-ep">
+                                <input type="radio" name="payment_method" value="easypaisa"<?= $method === 'easypaisa' ? ' checked' : '' ?>>
+                                <span class="pay-option-card">
+                                    <span class="pay-dot" aria-hidden="true"></span>
+                                    <span>
+                                        <span class="pay-option-title">EasyPaisa</span>
+                                        <span class="pay-option-text">Pay an advance or the full amount, then attach a screenshot.</span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <?= field_error($errors, 'payment_method') ?>
+                    </fieldset>
 
-                <button class="btn btn-primary btn-block" type="submit">Place order (<?= e(money($cart['total'])) ?>)</button>
+                    <div class="pay-panel<?= $method === 'easypaisa' ? '' : ' is-collapsed' ?>" data-pay-panel>
+                        <div class="pay-panel-inner">
+                            <div class="pay-panel-box">
+                                <h3>Pay with EasyPaisa</h3>
+
+                                <div class="ep-account">
+                                    <span class="ep-number"><?= e($easypaisa['number']) ?></span>
+                                    <?php if ($easypaisa['name'] !== ''): ?>
+                                        <span class="ep-name">Account name: <?= e($easypaisa['name']) ?></span>
+                                    <?php endif; ?>
+                                    <button class="btn btn-secondary btn-sm ep-copy js-only" type="button" data-copy="<?= e($easypaisa['number']) ?>">Copy number</button>
+                                </div>
+
+                                <ol class="ep-steps">
+                                    <li>Send the advance, or the full amount (<?= e(money($cart['total'])) ?>), to the EasyPaisa number above.</li>
+                                    <li>Take a screenshot of the successful transaction.</li>
+                                    <li>Enter the amount you sent and attach the screenshot below. The rest, if any, is paid in cash on delivery.</li>
+                                </ol>
+
+                                <div class="field">
+                                    <label for="paid_amount">Amount you sent (PKR)</label>
+                                    <div class="amount-row">
+                                        <input id="paid_amount" name="paid_amount" type="text" inputmode="decimal" autocomplete="off" maxlength="12" placeholder="e.g. 1500" value="<?= $f('paid_amount') ?>"<?= error_attrs($errors, 'paid_amount') ?>>
+                                        <button class="btn btn-secondary btn-sm js-only" type="button" data-fill-amount="<?= e($totalInput) ?>">Full amount</button>
+                                    </div>
+                                    <?= field_error($errors, 'paid_amount') ?>
+                                </div>
+
+                                <div class="field">
+                                    <label for="payment_screenshot">Payment screenshot</label>
+                                    <input id="payment_screenshot" name="payment_screenshot" type="file" accept="image/jpeg,image/png,image/webp"<?= error_attrs($errors, 'payment_screenshot') ?>>
+                                    <p class="field-hint">A JPG or PNG screenshot of the transaction, up to 10 MB.</p>
+                                    <p class="shot-note" data-shot-note aria-live="polite"></p>
+                                    <div class="shot-preview" data-shot-preview><img src="" alt="Preview of your screenshot"></div>
+                                    <?= field_error($errors, 'payment_screenshot') ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <input type="hidden" name="payment_method" value="cod">
+                    <div class="pay-note"><strong>Payment: cash on delivery.</strong> You pay when your order arrives.</div>
+                <?php endif; ?>
+
+                <div class="hp-field" aria-hidden="true">
+                    <label for="hp_check">Leave this field empty</label>
+                    <input id="hp_check" name="hp_check" type="text" tabindex="-1" autocomplete="off">
+                </div>
+
+                <button class="btn btn-primary btn-block" type="submit" data-submit-button>Place order (<?= e(money($cart['total'])) ?>)</button>
             </form>
 
             <aside class="summary-card" aria-label="Order summary">

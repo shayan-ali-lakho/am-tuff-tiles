@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Admin;
 
+use App\Core\ImageUploader;
 use App\Models\Order;
 use RuntimeException;
 
@@ -43,6 +44,25 @@ final class OrderController
         }
 
         echo view('admin/orders/show', ['title' => 'Order ' . $order['order_number'], 'order' => $order]);
+    }
+
+    /** The customer's EasyPaisa screenshot. Private: only a logged-in admin gets here (the router checks), and it is never cached. */
+    public function proof(string $id): void
+    {
+        $order = ctype_digit($id) ? Order::find((int) $id) : null;
+        $path  = $order !== null ? ImageUploader::proofPath((string) ($order['payment_proof'] ?? '')) : null;
+
+        if ($path === null || !is_file($path)) {
+            abort(404);
+        }
+
+        header('Content-Type: image/jpeg');
+        header('Content-Length: ' . (string) filesize($path));
+        header('Cache-Control: private, no-store');
+        header('X-Robots-Tag: noindex, nofollow');
+        header('Content-Disposition: inline; filename="payment-' . preg_replace('/[^A-Za-z0-9-]/', '', (string) $order['order_number']) . '.jpg"');
+        readfile($path);
+        exit;
     }
 
     public function status(string $id): void

@@ -9,6 +9,11 @@ storage/logs/*
 storage/sessions/*
 !storage/sessions/.gitkeep
 
+# Customer payment screenshots (private, kept on the server only)
+storage/payment-proofs/*
+!storage/payment-proofs/.htaccess
+!storage/payment-proofs/.gitkeep
+
 # Product images uploaded through the admin panel (kept on the server only)
 public/uploads/*
 !public/uploads/.htaccess

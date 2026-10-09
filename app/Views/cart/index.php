@@ -61,7 +61,7 @@
                         <div><dt>Delivery</dt><dd><?= $cart['delivery'] > 0 ? e(money($cart['delivery'])) : 'Free' ?></dd></div>
                         <div class="summary-total"><dt>Total</dt><dd><?= e(money($cart['total'])) ?></dd></div>
                     </dl>
-                    <p class="field-hint">Payment is cash on delivery.</p>
+                    <p class="field-hint">No account needed. <?= easypaisa()['enabled'] ? 'Pay by cash on delivery or EasyPaisa.' : 'Payment is cash on delivery.' ?></p>
                     <a class="btn btn-primary btn-block" href="<?= e(url('/checkout')) ?>">Checkout</a>
                     <p class="summary-more"><a href="<?= e(url('/shop')) ?>">Continue shopping</a></p>
                 </aside>
