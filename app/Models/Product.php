@@ -218,11 +218,11 @@ final class Product
         return $st->fetchAll();
     }
 
-    /** Featured products for the home page; if none are marked featured, the newest ones. */
+    /** Only products marked as featured, for the home page (newest first). */
     public static function featured(int $limit): array
     {
         $st = Database::connection()->prepare(
-            self::cardColumns() . ' ' . self::SHOP_FROM . ' ORDER BY p.is_featured DESC, p.created_at DESC, p.id DESC LIMIT ' . max(1, $limit)
+            self::cardColumns() . ' ' . self::SHOP_FROM . ' AND p.is_featured = 1 ORDER BY p.created_at DESC, p.id DESC LIMIT ' . max(1, $limit)
         );
         $st->execute();
 
