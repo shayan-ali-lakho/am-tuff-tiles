@@ -1211,7 +1211,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
 h1 { font-size: clamp(1.875rem, 1.3rem + 2vw, 3rem); }
 h2 { font-size: clamp(1.5rem, 1.15rem + 1.3vw, 2.125rem); }
 h3 { font-size: 1.125rem; font-weight: 600; }
-.container { padding: 0 clamp(1rem, 4vw, 2rem); }
+.container { padding-left: clamp(1rem, 4vw, 2rem); padding-right: clamp(1rem, 4vw, 2rem); }
 :focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
 a { color: var(--forest); }
 a:hover { color: var(--forest-hover); }
@@ -1485,6 +1485,6 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
 
 /* Narrower side margins: about half of before on desktop */
 :root { --container: 1680px; }
-.container { padding: 0 clamp(1rem, 4.5vw, 4rem); }
-@media (min-width: 1024px) { .container { padding: 0 clamp(1.5rem, 4.4vw, 4rem); } }
-@media (max-width: 560px) { .container { padding: 0 0.75rem; } }
+.container { padding-left: clamp(1rem, 4.5vw, 4rem); padding-right: clamp(1rem, 4.5vw, 4rem); }
+@media (min-width: 1024px) { .container { padding-left: clamp(1.5rem, 4.4vw, 4rem); padding-right: clamp(1.5rem, 4.4vw, 4rem); } }
+@media (max-width: 560px) { .container { padding-left: 0.75rem; padding-right: 0.75rem; } }
