@@ -1488,34 +1488,3 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
 .container { padding-left: clamp(1rem, 4.5vw, 4rem); padding-right: clamp(1rem, 4.5vw, 4rem); }
 @media (min-width: 1024px) { .container { padding-left: clamp(1.5rem, 4.4vw, 4rem); padding-right: clamp(1.5rem, 4.4vw, 4rem); } }
 @media (max-width: 560px) { .container { padding-left: 0.75rem; padding-right: 0.75rem; } }
-
-/* Hero pictures: four category tiles in a 2 x 2 grid, each with its name */
-.hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 560px); }
-.hero-circles { height: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3, .hero-circle-4 { position: static; width: auto; max-width: none; height: auto; aspect-ratio: 4 / 3; }
-.hero-circle-2, .hero-circle-4 { margin-top: 1.5rem; }
-.hero-circle-2 { animation-delay: 0.15s, 1.4s; }
-.hero-circle-4 { animation-delay: 0.45s, 2.4s; animation-duration: 0.8s, 8s; }
-.hero-circle a { border-radius: var(--radius); }
-.hero-circle-label { padding: 1.6rem 0.75rem 0.7rem; font-size: 0.9375rem; text-align: left; }
-.hero h1 { font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3rem); }
-@media (max-width: 960px) {
-    .hero-circles { gap: 0.75rem; margin-top: 1.5rem; }
-    .hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3, .hero-circle-4 { width: auto; max-width: none; aspect-ratio: 4 / 3; }
-    .hero-circle-2, .hero-circle-4 { margin-top: 0; }
-    .hero-circle-label { font-size: 0.8125rem; padding: 1.2rem 0.5rem 0.5rem; }
-}
-
-/* Hero pictures: three Tuff Tiles products in a row (one big, two beside it on wide screens) */
-.hero-circles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.hero-circle-1 { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
-.hero-circle-2, .hero-circle-4 { margin-top: 0; }
-.hero-circle-2, .hero-circle-3 { aspect-ratio: 4 / 3; }
-.hero-circle:only-child { grid-column: 1 / -1; }
-
-/* Hero pictures: three equal pictures side by side */
-.hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 600px); }
-.hero-circles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-.hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3 { grid-column: auto; aspect-ratio: 4 / 5; margin-top: 0; }
-.hero-circle:only-child { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
-@media (max-width: 960px) { .hero-circles { gap: 0.6rem; } .hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3 { aspect-ratio: 1 / 1; } }
