@@ -30,7 +30,7 @@ final class PageController
 
         echo view('about', [
             'title'       => 'About us',
-            'description' => 'About AM Tuff Tiles: tuff tiles, doors, garden products, metal gates, roof ceilings and more, with cash on delivery.',
+            'description' => 'About AM Tuff Tiles: tuff tiles, doors, garden products, metal gates, roof ceilings and more. Pay by EasyPaisa.',
             'categories'  => $categories,
         ]);
     }

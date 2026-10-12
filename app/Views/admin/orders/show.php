@@ -39,12 +39,12 @@ $email = trim((string) $order['customer_email']);
                 </ul>
                 <dl class="summary-rows">
                     <div><dt>Subtotal</dt><dd><?= e(money((int) $order['subtotal_paisa'])) ?></dd></div>
-                    <div><dt>Delivery</dt><dd><?= (int) $order['delivery_paisa'] > 0 ? e(money((int) $order['delivery_paisa'])) : 'Free' ?></dd></div>
+                    <?php if ((int) $order['delivery_paisa'] > 0): ?><div><dt>Delivery</dt><dd><?= e(money((int) $order['delivery_paisa'])) ?></dd></div><?php endif; ?>
                     <div class="summary-total"><dt>Order total</dt><dd><?= e(money($total)) ?></dd></div>
                     <?php if ($isEasy): ?>
                         <div><dt>Sent by EasyPaisa (customer says)</dt><dd><?= e(money($paid)) ?></dd></div>
                     <?php endif; ?>
-                    <div class="summary-total"><dt>Collect on delivery</dt><dd><?= e(money($balance)) ?></dd></div>
+                    <div class="summary-total"><dt>Balance still to pay</dt><dd><?= e(money($balance)) ?></dd></div>
                 </dl>
 
                 <h3>Timeline</h3>

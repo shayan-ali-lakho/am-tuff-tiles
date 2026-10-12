@@ -29,7 +29,7 @@ final class Order
      * Place an order for the cart, in one transaction: the products are locked,
      * stock is checked and reduced, and the order and its lines are saved together or not at all.
      *
-     * $contactId is null for a guest order. Payment is cash on delivery ('cod') or EasyPaisa ('easypaisa');
+     * $contactId is null for a guest order. Payment is EasyPaisa ('easypaisa'); older orders may be cash ('cod');
      * for EasyPaisa the customer's screenshot path and the amount they sent (in paisa) are saved too.
      *
      * @param array<int, int> $cart product id => quantity
@@ -339,7 +339,7 @@ final class Order
 
             $site  = (string) config('app.name');
             $money = static fn (int $p): string => money($p);
-            $delivery = (int) $order['delivery_paisa'] > 0 ? $money((int) $order['delivery_paisa']) : 'Free';
+            $delivery = (int) $order['delivery_paisa'] > 0 ? 'Delivery: ' . $money((int) $order['delivery_paisa']) . "\n" : '';
 
             $total     = (int) $order['total_paisa'];
             $isEasy    = $order['payment_method'] === 'easypaisa';
@@ -351,7 +351,7 @@ final class Order
             if ($shopEmail !== '') {
                 $admin = \App\Core\Mailer::baseUrl() . '/admin/orders/' . $order['id'];
                 $shopPayment = $isEasy
-                    ? 'Payment: EasyPaisa. The customer says they sent ' . $money($paid) . ". Check their screenshot on the order page before confirming.\nBalance to collect on delivery: " . $money($balance)
+                    ? 'Payment: EasyPaisa. The customer says they sent ' . $money($paid) . ". Check their screenshot on the order page before confirming.\nBalance still to pay: " . $money($balance)
                     : 'Payment: cash on delivery. Total to collect: ' . $money($total);
 
                 \App\Core\Mailer::send(
@@ -361,7 +361,7 @@ final class Order
                     . ($email !== '' ? "Email: $email\n" : '')
                     . "Address: {$order['shipping_address']}, {$order['shipping_city']}\n"
                     . ($order['notes'] ? "Notes: {$order['notes']}\n" : '')
-                    . "\nItems:\n$items\n\nDelivery: $delivery\nOrder total: " . $money($total)
+                    . "\nItems:\n$items\n\n{$delivery}Order total: " . $money($total)
                     . "\n$shopPayment"
                     . "\n\nOpen the order: $admin\n",
                     $email !== '' ? $email : null
@@ -371,14 +371,14 @@ final class Order
             // The customer's email is optional; without one there is nobody to send the confirmation to
             if ($email !== '') {
                 $customerPayment = $isEasy
-                    ? 'You told us you sent ' . $money($paid) . " by EasyPaisa. We will check your payment screenshot and call you to confirm.\nBalance to pay on delivery (cash): " . $money($balance)
+                    ? 'You told us you sent ' . $money($paid) . " by EasyPaisa. We will check your payment screenshot and call you to confirm.\nBalance still to pay: " . $money($balance)
                     : 'Total to pay on delivery (cash): ' . $money($total);
 
                 \App\Core\Mailer::send(
                     $email,
                     'Your ' . $site . ' order ' . $number,
                     "Hello {$order['customer_name']},\n\nThank you for your order. We will call you on {$order['customer_phone']} to confirm it.\n\n"
-                    . "Order: $number\n\nItems:\n$items\n\nDelivery: $delivery\nOrder total: " . $money($total)
+                    . "Order: $number\n\nItems:\n$items\n\n{$delivery}Order total: " . $money($total)
                     . "\n$customerPayment"
                     . "\n\nDelivering to: {$order['shipping_address']}, {$order['shipping_city']}\n\n$site\n",
                     $shopEmail !== '' ? $shopEmail : null

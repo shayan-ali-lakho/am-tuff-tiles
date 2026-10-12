@@ -85,8 +85,8 @@ final class ShopController
         echo view('shop/index', [
             'title'          => ($activeCategory !== null ? 'Buy ' . $activeCategory['name'] . ' Online' : 'Shop Tuff Tiles, Doors, Gates & More') . $pageNote,
             'description'    => $activeCategory !== null
-                ? 'Buy ' . $activeCategory['name'] . ' from AM Tuff Tiles. See sizes and prices in PKR and order online with cash on delivery.'
-                : 'Browse tuff tiles, doors, garden products, metal gates, roof ceilings and more from AM Tuff Tiles. Prices in PKR, cash on delivery.',
+                ? 'Buy ' . $activeCategory['name'] . ' from AM Tuff Tiles. See sizes and prices in PKR and order online. Pay by EasyPaisa.'
+                : 'Browse tuff tiles, doors, garden products, metal gates, roof ceilings and more from AM Tuff Tiles. Prices in PKR. Pay by EasyPaisa.',
             'products'       => Product::shopSearch($filters, $sort, self::PER_PAGE, ($page - 1) * self::PER_PAGE),
             'categories'     => $categories,
             'options'        => $options,

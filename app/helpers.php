@@ -442,9 +442,9 @@ function business_schema(): array
         'url'                => $site . '/',
         'logo'               => $site . asset_path('img/logo.png'),
         'image'              => $site . asset_path('img/og-default.jpg'),
-        'description'        => 'Tuff tiles, doors, garden products, metal gates, roof ceilings and more. Prices in PKR, ' . (easypaisa()['enabled'] ? 'cash on delivery or EasyPaisa' : 'cash on delivery') . '.',
+        'description'        => 'Tuff tiles, doors, garden products, metal gates, roof ceilings and more. Prices in PKR' . (easypaisa()['enabled'] ? ', pay by EasyPaisa' : '') . '.',
         'currenciesAccepted' => 'PKR',
-        'paymentAccepted'    => easypaisa()['enabled'] ? 'Cash on delivery, EasyPaisa' : 'Cash on delivery',
+        'paymentAccepted'    => 'EasyPaisa',
         'address'            => ['@type' => 'PostalAddress', 'addressLocality' => 'Karachi', 'addressCountry' => 'PK'],
         'geo'                => ['@type' => 'GeoCoordinates', 'latitude' => 24.917186842983497, 'longitude' => 66.96014607642219],
     ];

@@ -24,7 +24,7 @@ $router->get('/about', [PageController::class, 'about']);
 $router->get('/shop', [ShopController::class, 'index']);
 $router->get('/product/{slug}', [ShopController::class, 'show']);
 
-// Cart and checkout (no account needed; cash on delivery or EasyPaisa)
+// Cart and checkout (no account needed; EasyPaisa)
 $router->get('/cart', [CartController::class, 'show']);
 $router->post('/cart/add', [CartController::class, 'add']);
 $router->post('/cart/update', [CartController::class, 'update']);

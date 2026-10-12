@@ -7,7 +7,6 @@
  * @var array{enabled: bool, number: string, name: string} $easypaisa
  */
 $f = static fn (string $k): string => e($old[$k] ?? '');
-$method = ($old['payment_method'] ?? 'cod') === 'easypaisa' && $easypaisa['enabled'] ? 'easypaisa' : 'cod';
 $totalInput = price_input((int) $cart['total']);
 ?>
 <section class="page-head">
@@ -64,34 +63,10 @@ $totalInput = price_input((int) $cart['total']);
                 </div>
 
                 <?php if ($easypaisa['enabled']): ?>
-                    <fieldset class="pay-options">
-                        <legend>Payment</legend>
-                        <div class="pay-options-grid">
-                            <label class="pay-option">
-                                <input type="radio" name="payment_method" value="cod"<?= $method === 'cod' ? ' checked' : '' ?>>
-                                <span class="pay-option-card">
-                                    <span class="pay-dot" aria-hidden="true"></span>
-                                    <span>
-                                        <span class="pay-option-title">Cash on delivery</span>
-                                        <span class="pay-option-text">You pay when your order arrives.</span>
-                                    </span>
-                                </span>
-                            </label>
-                            <label class="pay-option pay-option-ep">
-                                <input type="radio" name="payment_method" value="easypaisa"<?= $method === 'easypaisa' ? ' checked' : '' ?>>
-                                <span class="pay-option-card">
-                                    <span class="pay-dot" aria-hidden="true"></span>
-                                    <span>
-                                        <span class="pay-option-title">EasyPaisa</span>
-                                        <span class="pay-option-text">Pay an advance or the full amount, then attach a screenshot.</span>
-                                    </span>
-                                </span>
-                            </label>
-                        </div>
-                        <?= field_error($errors, 'payment_method') ?>
-                    </fieldset>
+                    <input type="hidden" name="payment_method" value="easypaisa">
+                    <h2 class="pay-heading">Payment</h2>
 
-                    <div class="pay-panel<?= $method === 'easypaisa' ? '' : ' is-collapsed' ?>" data-pay-panel>
+                    <div class="pay-panel" data-pay-panel>
                         <div class="pay-panel-inner">
                             <div class="pay-panel-box">
                                 <h3>Pay with EasyPaisa</h3>
@@ -107,7 +82,7 @@ $totalInput = price_input((int) $cart['total']);
                                 <ol class="ep-steps">
                                     <li>Send the advance, or the full amount (<?= e(money($cart['total'])) ?>), to the EasyPaisa number above.</li>
                                     <li>Take a screenshot of the successful transaction.</li>
-                                    <li>Enter the amount you sent and attach the screenshot below. The rest, if any, is paid in cash on delivery.</li>
+                                    <li>Enter the amount you sent and attach the screenshot below.</li>
                                 </ol>
 
                                 <div class="field">
@@ -131,8 +106,7 @@ $totalInput = price_input((int) $cart['total']);
                         </div>
                     </div>
                 <?php else: ?>
-                    <input type="hidden" name="payment_method" value="cod">
-                    <div class="pay-note"><strong>Payment: cash on delivery.</strong> You pay when your order arrives.</div>
+                    <div class="pay-note"><strong>Online ordering is not available right now.</strong> Please call us<?= config('shop.phone') ? ' on ' . e((string) config('shop.phone')) : '' ?> to place your order.</div>
                 <?php endif; ?>
 
                 <div class="hp-field" aria-hidden="true">
@@ -140,7 +114,7 @@ $totalInput = price_input((int) $cart['total']);
                     <input id="hp_check" name="hp_check" type="text" tabindex="-1" autocomplete="off">
                 </div>
 
-                <button class="btn btn-primary btn-block" type="submit" data-submit-button>Place order (<?= e(money($cart['total'])) ?>)</button>
+                <button class="btn btn-primary btn-block" type="submit" data-submit-button<?= $easypaisa['enabled'] ? '' : ' disabled' ?>>Place order (<?= e(money($cart['total'])) ?>)</button>
             </form>
 
             <aside class="summary-card" aria-label="Order summary">
@@ -152,7 +126,7 @@ $totalInput = price_input((int) $cart['total']);
                 </ul>
                 <dl class="summary-rows">
                     <div><dt>Subtotal</dt><dd><?= e(money($cart['subtotal'])) ?></dd></div>
-                    <div><dt>Delivery</dt><dd><?= $cart['delivery'] > 0 ? e(money($cart['delivery'])) : 'Free' ?></dd></div>
+                    <?php if ($cart['delivery'] > 0): ?><div><dt>Delivery</dt><dd><?= e(money($cart['delivery'])) ?></dd></div><?php endif; ?>
                     <div class="summary-total"><dt>Total</dt><dd><?= e(money($cart['total'])) ?></dd></div>
                 </dl>
                 <p class="summary-more"><a href="<?= e(url('/cart')) ?>">Edit cart</a></p>

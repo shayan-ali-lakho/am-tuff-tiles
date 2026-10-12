@@ -1488,3 +1488,5 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
 .container { padding-left: clamp(1rem, 4.5vw, 4rem); padding-right: clamp(1rem, 4.5vw, 4rem); }
 @media (min-width: 1024px) { .container { padding-left: clamp(1.5rem, 4.4vw, 4rem); padding-right: clamp(1.5rem, 4.4vw, 4rem); } }
 @media (max-width: 560px) { .container { padding-left: 0.75rem; padding-right: 0.75rem; } }
+
+.pay-heading { margin: 1.25rem 0 0.75rem; font-size: 1.15rem; }

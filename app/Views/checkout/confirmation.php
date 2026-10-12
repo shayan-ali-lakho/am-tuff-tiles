@@ -18,9 +18,7 @@ $balance = max(0, $total - $paid);
             Your order number is <strong><?= e($order['order_number']) ?></strong>. We will call you on
             <?= e($order['customer_phone']) ?> to confirm.
             <?php if ($isEasy): ?>
-                We will also check your EasyPaisa screenshot.<?= $balance > 0 ? ' Please keep the remaining ' . e(money($balance)) . ' ready in cash for delivery.' : '' ?>
-            <?php else: ?>
-                Please keep the cash ready for delivery.
+                We will also check your EasyPaisa screenshot.<?= $balance > 0 ? ' The remaining ' . e(money($balance)) . ' is still to be paid. We will call you about it.' : '' ?>
             <?php endif; ?>
         </div>
 
@@ -37,18 +35,14 @@ $balance = max(0, $total - $paid);
             </ul>
             <dl class="summary-rows">
                 <div><dt>Subtotal</dt><dd><?= e(money((int) $order['subtotal_paisa'])) ?></dd></div>
-                <div><dt>Delivery</dt><dd><?= (int) $order['delivery_paisa'] > 0 ? e(money((int) $order['delivery_paisa'])) : 'Free' ?></dd></div>
+                <?php if ((int) $order['delivery_paisa'] > 0): ?><div><dt>Delivery</dt><dd><?= e(money((int) $order['delivery_paisa'])) ?></dd></div><?php endif; ?>
                 <div class="summary-total"><dt>Order total</dt><dd><?= e(money($total)) ?></dd></div>
             </dl>
 
             <?php if ($isEasy): ?>
                 <div class="pay-summary">
                     <p><strong>Paid by EasyPaisa:</strong> <?= e(money($paid)) ?> <span class="muted">(waiting for our check)</span></p>
-                    <p><strong>To pay on delivery (cash):</strong> <?= e(money($balance)) ?></p>
-                </div>
-            <?php else: ?>
-                <div class="pay-summary">
-                    <p><strong>To pay on delivery (cash):</strong> <?= e(money($total)) ?></p>
+                    <p><strong>Remaining to pay:</strong> <?= e(money($balance)) ?></p>
                 </div>
             <?php endif; ?>
 

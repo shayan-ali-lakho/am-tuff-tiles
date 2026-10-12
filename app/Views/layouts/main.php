@@ -2,7 +2,7 @@
 /** @var string $content */
 $siteName = (string) config('app.name');
 $pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : 'Tuff Tiles, Doors & Metal Gates in Karachi | ' . $siteName;
-$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates and roof ceilings. Browse prices in PKR and order online, no account needed. Pay by ' . (easypaisa()['enabled'] ? 'cash on delivery or EasyPaisa' : 'cash on delivery') . '.';
+$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates and roof ceilings. Browse prices in PKR and order online, no account needed. Pay by EasyPaisa.';
 $seo = seo();
 $canonical = (string) ($seo['canonical'] ?? (site_url() . (current_path() === '/' ? '/' : current_path())));
 $ogImage = (string) ($seo['image'] ?? (site_url() . asset_path('img/og-default.jpg')));

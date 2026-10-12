@@ -15,7 +15,7 @@ use RuntimeException;
  *
  * Nobody has to log in to order. A guest sees the confirmation of the order they just placed because its number is
  * remembered in their session; logged-in customers also see their past orders under "My orders".
- * Payment is cash on delivery, or EasyPaisa (advance or full amount) with a screenshot of the transaction.
+ * Payment is by EasyPaisa (advance or full amount) with a screenshot of the transaction.
  */
 final class CheckoutController
 {
@@ -45,7 +45,7 @@ final class CheckoutController
             'shipping_address' => (string) ($user['address'] ?? ''),
             'shipping_city'    => (string) ($user['city'] ?? ''),
             'notes'            => '',
-            'payment_method'   => 'cod',
+            'payment_method'   => 'easypaisa',
             'paid_amount'      => '',
         ];
 
@@ -105,7 +105,7 @@ final class CheckoutController
             'shipping_address' => trim((string) ($_POST['shipping_address'] ?? '')),
             'shipping_city'    => trim((string) ($_POST['shipping_city'] ?? '')),
             'notes'            => trim((string) ($_POST['notes'] ?? '')),
-            'payment_method'   => trim((string) ($_POST['payment_method'] ?? 'cod')),
+            'payment_method'   => 'easypaisa',
             'paid_amount'      => trim((string) ($_POST['paid_amount'] ?? '')),
         ];
 
@@ -131,39 +131,33 @@ final class CheckoutController
             $errors['notes'] = 'Notes can be at most 500 characters.';
         }
 
-        // Payment
-        $method = 'cod';
+        // Payment: EasyPaisa only, with the amount sent and a screenshot of the transaction
+        $method = 'easypaisa';
         $paid   = 0;
         $file   = null;
 
-        if ($in['payment_method'] === 'easypaisa') {
-            if (!$easypaisa['enabled']) {
-                $errors['payment_method'] = 'EasyPaisa is not available right now. Please choose cash on delivery.';
+        if (!$easypaisa['enabled']) {
+            $errors['payment_method'] = 'Online ordering is not available right now. Please call us to place your order.';
+        } else {
+            $amount = parse_price($in['paid_amount']);
+            if ($amount === null || $amount < 100) {
+                $errors['paid_amount'] = 'Enter the amount you sent by EasyPaisa, for example 1500.';
+            } elseif ($amount > $cart['total']) {
+                $errors['paid_amount'] = 'The amount cannot be more than the order total (' . money($cart['total']) . ').';
             } else {
-                $method = 'easypaisa';
-
-                $amount = parse_price($in['paid_amount']);
-                if ($amount === null || $amount < 100) {
-                    $errors['paid_amount'] = 'Enter the amount you sent by EasyPaisa, for example 1500.';
-                } elseif ($amount > $cart['total']) {
-                    $errors['paid_amount'] = 'The amount cannot be more than the order total (' . money($cart['total']) . ').';
-                } else {
-                    $paid = $amount;
-                }
-
-                $candidate = $_FILES['payment_screenshot'] ?? null;
-                if (
-                    !is_array($candidate)
-                    || is_array($candidate['tmp_name'] ?? null)
-                    || (int) ($candidate['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE
-                ) {
-                    $errors['payment_screenshot'] = 'Please attach a screenshot of your EasyPaisa payment.';
-                } else {
-                    $file = $candidate;
-                }
+                $paid = $amount;
             }
-        } elseif ($in['payment_method'] !== 'cod') {
-            $errors['payment_method'] = 'Please choose how you want to pay.';
+
+            $candidate = $_FILES['payment_screenshot'] ?? null;
+            if (
+                !is_array($candidate)
+                || is_array($candidate['tmp_name'] ?? null)
+                || (int) ($candidate['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE
+            ) {
+                $errors['payment_screenshot'] = 'Please attach a screenshot of your EasyPaisa payment.';
+            } else {
+                $file = $candidate;
+            }
         }
 
         // Only look at the screenshot itself once everything else is fine, so a mistake elsewhere does not store a file

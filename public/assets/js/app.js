@@ -391,7 +391,7 @@ document.addEventListener('submit', function (event) {
     }
 
     var panel = form.querySelector('[data-pay-panel]');
-    var radios = form.querySelectorAll('input[name="payment_method"]');
+    var radios = form.querySelectorAll('input[type="radio"][name="payment_method"]');
     var button = form.querySelector('[data-submit-button]');
     var buttonText = button ? button.textContent : '';
     var loadingTimer = null;
@@ -399,7 +399,7 @@ document.addEventListener('submit', function (event) {
 
     function syncPanel() {
         var checked = form.querySelector('input[name="payment_method"]:checked');
-        var show = !!checked && checked.value === 'easypaisa';
+        var show = radios.length === 0 || (!!checked && checked.value === 'easypaisa');
 
         if (panel) {
             panel.classList.toggle('is-collapsed', !show);
