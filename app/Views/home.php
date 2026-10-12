@@ -23,13 +23,12 @@
         <ul class="hero-circles" aria-label="Product ranges">
             <?php foreach ($hero as $i => $circle): ?>
                 <li class="hero-circle hero-circle-<?= e($i + 1) ?>">
-                    <a href="<?= e(url($circle['href'])) ?>">
+                    <a href="<?= e(url($circle['href'])) ?>" aria-label="<?= e($circle['label']) ?>">
                         <?php if ($circle['photo'] !== null): ?>
-                            <img src="<?= e(upload_url($circle['photo'], true)) ?>" alt="" width="320" height="320" loading="eager">
+                            <img src="<?= e(upload_url($circle['photo'], true)) ?>" alt="<?= e($circle['label']) ?>" width="320" height="320" loading="eager">
                         <?php elseif ($circle['fallback'] !== null): ?>
-                            <img src="<?= e(asset($circle['fallback'])) ?>" alt="" width="320" height="320" loading="eager">
+                            <img src="<?= e(asset($circle['fallback'])) ?>" alt="<?= e($circle['label']) ?>" width="320" height="320" loading="eager">
                         <?php endif; ?>
-                        <span class="hero-circle-label"><?= e($circle['label']) ?></span>
                     </a>
                 </li>
             <?php endforeach; ?>
