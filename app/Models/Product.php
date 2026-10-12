@@ -198,6 +198,26 @@ final class Product
         return is_string($path) && $path !== '' ? $path : null;
     }
 
+    /**
+     * Newest visible products of a category that have a photo (name, slug and photo path), for the home page pictures.
+     *
+     * @return list<array{name: string, slug: string, image_path: string}>
+     */
+    public static function categoryPhotos(string $categorySlug, int $limit): array
+    {
+        $st = Database::connection()->prepare(
+            'SELECT p.name, p.slug,
+                    (SELECT i.file_path FROM product_images i
+                      WHERE i.product_id = p.id
+                      ORDER BY i.is_primary DESC, i.sort_order, i.id LIMIT 1) AS image_path '
+            . self::SHOP_FROM . ' AND c.slug = ? HAVING image_path IS NOT NULL
+             ORDER BY p.is_featured DESC, p.created_at DESC, p.id DESC LIMIT ' . max(1, $limit)
+        );
+        $st->execute([$categorySlug]);
+
+        return $st->fetchAll();
+    }
+
     /** Slug and last change of every product that is for sale, for the sitemap. */
     public static function sitemapRows(int $limit = 5000): array
     {

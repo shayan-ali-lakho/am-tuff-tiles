@@ -1505,3 +1505,10 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
     .hero-circle-2, .hero-circle-4 { margin-top: 0; }
     .hero-circle-label { font-size: 0.8125rem; padding: 1.2rem 0.5rem 0.5rem; }
 }
+
+/* Hero pictures: three Tuff Tiles products in a row (one big, two beside it on wide screens) */
+.hero-circles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hero-circle-1 { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+.hero-circle-2, .hero-circle-4 { margin-top: 0; }
+.hero-circle-2, .hero-circle-3 { aspect-ratio: 4 / 3; }
+.hero-circle:only-child { grid-column: 1 / -1; }

@@ -28,7 +28,7 @@ final class HomeController
                 ['name' => 'Roof Ceilings', 'slug' => 'roof-ceilings', 'description' => 'Roof and ceiling solutions for every building.'],
             ];
             $featured = [];
-            $hero     = [];
+            $hero     = $this->heroCircles([]);
         }
 
         seo(['jsonld' => [business_schema()]]);
@@ -42,56 +42,30 @@ final class HomeController
     }
 
     /**
-     * Four pictures for the top of the home page: Tuff Tiles, Fancy Pavers, Heat Insulation Tiles and CC Jali Texture Tile.
-     * Each uses the real category name as its label and shows the photo of a product from that category. Categories are
-     * found by a word in their name; if one is missing, the next unused category fills the place.
+     * Three pictures for the top of the home page: photos of Tuff Tiles products, each with the product's name.
+     * Without any product photo yet, the supplied tile picture is shown once under the category name.
      *
-     * @param list<array<string, mixed>> $categories active shop categories
      * @return list<array{label: string, href: string, photo: ?string, fallback: ?string}>
      */
     private function heroCircles(array $categories): array
     {
-        $used = [];
-        $picked = [];
-
-        foreach (['tuff', 'paver', 'heat', 'jali'] as $word) {
-            foreach ($categories as $category) {
-                if (!in_array($category['slug'], $used, true) && stripos((string) $category['name'], $word) !== false) {
-                    $used[] = $category['slug'];
-                    $picked[] = $category;
-                    break;
-                }
-            }
-        }
-
-        foreach ($categories as $category) {
-            if (count($picked) >= 4) {
-                break;
-            }
-
-            if (!in_array($category['slug'], $used, true)) {
-                $used[] = $category['slug'];
-                $picked[] = $category;
-            }
-        }
-
         $circles = [];
-        foreach ($picked as $category) {
-            $slug = (string) $category['slug'];
-            $photo = null;
 
-            try {
-                $photo = Product::categoryPhoto($slug);
-            } catch (Throwable $e) {
-                error_log('Hero photo failed: ' . $e->getMessage());
+        try {
+            foreach (Product::categoryPhotos('tuff-tiles', 3) as $product) {
+                $circles[] = [
+                    'label'    => (string) $product['name'],
+                    'href'     => '/product/' . rawurlencode((string) $product['slug']),
+                    'photo'    => (string) $product['image_path'],
+                    'fallback' => null,
+                ];
             }
+        } catch (Throwable $e) {
+            error_log('Hero photos failed: ' . $e->getMessage());
+        }
 
-            $circles[] = [
-                'label'    => (string) $category['name'],
-                'href'     => '/shop?category=' . rawurlencode($slug),
-                'photo'    => $photo,
-                'fallback' => $slug === 'tuff-tiles' ? 'img/about-tiles.jpg' : null,
-            ];
+        if ($circles === []) {
+            $circles[] = ['label' => 'Tuff Tiles', 'href' => '/shop?category=tuff-tiles', 'photo' => null, 'fallback' => 'img/about-tiles.jpg'];
         }
 
         return $circles;
