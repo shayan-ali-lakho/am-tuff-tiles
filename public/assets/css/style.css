@@ -1512,3 +1512,10 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
 .hero-circle-2, .hero-circle-4 { margin-top: 0; }
 .hero-circle-2, .hero-circle-3 { aspect-ratio: 4 / 3; }
 .hero-circle:only-child { grid-column: 1 / -1; }
+
+/* Hero pictures: three equal pictures side by side */
+.hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 600px); }
+.hero-circles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3 { grid-column: auto; aspect-ratio: 4 / 5; margin-top: 0; }
+.hero-circle:only-child { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
+@media (max-width: 960px) { .hero-circles { gap: 0.6rem; } .hero-circle, .hero-circle-1, .hero-circle-2, .hero-circle-3 { aspect-ratio: 1 / 1; } }
