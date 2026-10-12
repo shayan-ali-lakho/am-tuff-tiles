@@ -49,6 +49,23 @@ set_exception_handler(static function (Throwable $e) use ($debug): void {
         : view('errors/500', ['title' => 'Something went wrong']);
 });
 
+// A fatal error (for example running out of memory on a huge photo) cannot be caught like an exception and would
+// leave a blank page. Log it and show the normal error page instead.
+register_shutdown_function(static function () use ($debug): void {
+    $error = error_get_last();
+
+    if ($error === null || !in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE], true) || PHP_SAPI === 'cli') {
+        return;
+    }
+
+    error_log('Fatal: ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
+
+    if (!headers_sent()) {
+        http_response_code(500);
+        echo $debug ? '<pre>' . htmlspecialchars($error['message']) . '</pre>' : '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Please try again</title><body style="font-family:sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem"><h1>Something went wrong</h1><p>Please go back and try again. If it keeps happening, call us.</p><p><a href="/">Back to the home page</a></p></body>';
+    }
+});
+
 // Sessions (web requests only): HttpOnly, SameSite=Lax, Secure when served over HTTPS.
 // Session files live in storage/sessions (private to this app) and expire after 8 hours without
 // activity, so the shared host's shorter default cleanup cannot log shoppers out early.

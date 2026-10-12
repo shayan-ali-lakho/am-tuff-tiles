@@ -25,7 +25,7 @@ use RuntimeException;
 final class ImageUploader
 {
     public const MAX_BYTES = 10 * 1024 * 1024;
-    private const MAX_PIXELS = 40000000;
+    private const MAX_PIXELS = 24000000;
     private const FULL_SIZE = 1600;
     private const THUMB_SIZE = 640;
     private const PROOF_SIZE = 2000;
@@ -185,8 +185,12 @@ final class ImageUploader
         [$width, $height] = $info;
 
         if ($width < 1 || $height < 1 || $width * $height > self::MAX_PIXELS) {
-            throw new RuntimeException('The ' . $noun . ' has too many pixels (about 40 megapixels at most). Please make it smaller.');
+            throw new RuntimeException('The ' . $noun . ' has too many pixels (about 24 megapixels at most). Please make it smaller.');
         }
+
+        // Decoding a big photo needs about 4 bytes per pixel. Running out of memory would kill the whole request
+        // (a blank page), so make sure there is room first and give a friendly message if there is not.
+        self::ensureMemory($width * $height * 4 * 2 + 24 * 1024 * 1024);
 
         $source = match ($mime) {
             'image/jpeg' => @imagecreatefromjpeg($tmp),
@@ -203,6 +207,43 @@ final class ImageUploader
         }
 
         return $source;
+    }
+
+    /** Raise the memory limit for this request if needed; refuse politely if the server will not allow enough. */
+    private static function ensureMemory(int $needed): void
+    {
+        $limit = self::bytes((string) ini_get('memory_limit'));
+
+        if ($limit < 0) {
+            return;
+        }
+
+        if ($limit < memory_get_usage(true) + $needed) {
+            @ini_set('memory_limit', (string) ($limit + $needed + 32 * 1024 * 1024));
+            $limit = self::bytes((string) ini_get('memory_limit'));
+        }
+
+        if ($limit >= 0 && $limit < memory_get_usage(true) + $needed) {
+            throw new RuntimeException('This image is too large for the server to process. Please make it smaller (for example, under 12 megapixels) and try again.');
+        }
+    }
+
+    private static function bytes(string $value): int
+    {
+        $value = trim($value);
+
+        if ($value === '' || $value === '-1') {
+            return -1;
+        }
+
+        $number = (int) $value;
+
+        return match (strtolower(substr($value, -1))) {
+            'g'     => $number * 1024 * 1024 * 1024,
+            'm'     => $number * 1024 * 1024,
+            'k'     => $number * 1024,
+            default => $number,
+        };
     }
 
     /**

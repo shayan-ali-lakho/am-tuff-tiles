@@ -325,7 +325,7 @@ function logo_url(): ?string
         $file = dirname(__DIR__) . '/public/assets/img/logo.' . $ext;
 
         if (is_file($file)) {
-            return asset('img/logo.' . $ext) . '?v=' . filemtime($file);
+            return asset('img/logo.' . $ext);
         }
     }
 
