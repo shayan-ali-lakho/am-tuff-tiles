@@ -9,7 +9,7 @@
     <div class="container hero-grid">
         <div class="hero-inner">
             <p class="eyebrow">Building products supplier</p>
-            <h1>Tuff tiles, doors, gates and roofing, all in one place.</h1>
+            <h1>Tuff Tiles, Fancy Pavers, Heat Insulation Tiles, CC Jali Texture Tile</h1>
             <p class="hero-lead">
                 AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates, roof ceilings and more
                 for homes, shops and building projects.
