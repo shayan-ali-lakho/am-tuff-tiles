@@ -11,7 +11,7 @@
             <p class="eyebrow">Building products supplier</p>
             <h1>Tuff Tiles, Fancy Pavers, Heat Insulation Tiles, CC Jali Texture Tile</h1>
             <p class="hero-lead">
-                AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates, roof ceilings and more
+                AM Tuff Tiles supplies tuff tiles, fancy pavers, heat insulation tiles and CC jali texture tiles
                 for homes, shops and building projects.
             </p>
             <div class="hero-actions">
