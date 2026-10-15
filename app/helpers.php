@@ -318,6 +318,12 @@ function icon(string $name): string
         . ($paths[$name] ?? '') . '</svg>';
 }
 
+/** The one sentence that describes the shop everywhere (search results, footer, about page, structured data). */
+function site_description(): string
+{
+    return 'AM Tuff Tiles supplies tuff tiles, fancy pavers, heat insulation tiles and CC jali texture tiles for homes, shops and building projects.';
+}
+
 /** URL of the shop logo if a file public/assets/img/logo.(svg|png|webp|jpg) exists, otherwise null. */
 function logo_url(): ?string
 {
@@ -429,6 +435,23 @@ function seo_is_private_path(string $path): bool
     return false;
 }
 
+/** Tells Google the site's name and its logo/icon for search results. */
+function website_schema(): array
+{
+    $site = site_url();
+
+    return [
+        '@context'      => 'https://schema.org',
+        '@type'         => 'WebSite',
+        '@id'           => $site . '/#website',
+        'url'           => $site . '/',
+        'name'          => (string) config('app.name'),
+        'alternateName' => ['AM Tuff Tiles', 'AMTuff Tiles', 'Abdul Manan Tiles'],
+        'description'   => site_description(),
+        'image'         => $site . asset_path('img/icon-192.png'),
+    ];
+}
+
 /** Structured data describing the shop itself (shown by Google as a business). */
 function business_schema(): array
 {
@@ -440,9 +463,9 @@ function business_schema(): array
         'name'               => (string) config('app.name'),
         'alternateName'      => 'Abdul Manan Tiles',
         'url'                => $site . '/',
-        'logo'               => $site . asset_path('img/logo.png'),
+        'logo'               => $site . asset_path('img/icon-192.png'),
         'image'              => $site . asset_path('img/og-default.jpg'),
-        'description'        => 'Tuff tiles, doors, garden products, metal gates, roof ceilings and more. Prices in PKR' . (easypaisa()['enabled'] ? ', pay by EasyPaisa' : '') . '.',
+        'description'        => site_description(),
         'currenciesAccepted' => 'PKR',
         'paymentAccepted'    => 'EasyPaisa',
         'address'            => ['@type' => 'PostalAddress', 'addressLocality' => 'Karachi', 'addressCountry' => 'PK'],

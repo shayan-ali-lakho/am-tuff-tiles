@@ -31,7 +31,7 @@ final class HomeController
             $hero     = $this->heroCircles([]);
         }
 
-        seo(['jsonld' => [business_schema()]]);
+        seo(['jsonld' => [website_schema(), business_schema()]]);
 
         echo view('home', [
             'title'      => '',

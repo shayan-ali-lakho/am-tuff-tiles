@@ -1,6 +1,6 @@
 # AM Tuff Tiles
 
-E-commerce website for AM Tuff Tiles (tuff tiles, doors, gardens, metal gates, roof ceilings and more).
+E-commerce website for AM Tuff Tiles (tuff tiles, fancy pavers, heat insulation tiles and CC jali texture tiles).
 Plain PHP 8 + MySQL, built to run on Hostinger shared hosting.
 
 ## Structure

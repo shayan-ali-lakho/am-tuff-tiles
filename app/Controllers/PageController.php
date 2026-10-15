@@ -26,11 +26,11 @@ final class PageController
             ];
         }
 
-        seo(['jsonld' => [business_schema()]]);
+        seo(['jsonld' => [website_schema(), business_schema()]]);
 
         echo view('about', [
             'title'       => 'About us',
-            'description' => 'About AM Tuff Tiles: tuff tiles, doors, garden products, metal gates, roof ceilings and more. Pay by EasyPaisa.',
+            'description' => site_description(),
             'categories'  => $categories,
         ]);
     }

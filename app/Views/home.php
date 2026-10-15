@@ -11,8 +11,7 @@
             <p class="eyebrow">Building products supplier</p>
             <h1>Tuff Tiles, Fancy Pavers, Heat Insulation Tiles, CC Jali Texture Tile</h1>
             <p class="hero-lead">
-                AM Tuff Tiles supplies tuff tiles, fancy pavers, heat insulation tiles and CC jali texture tiles
-                for homes, shops and building projects.
+                <?= e(site_description()) ?>
             </p>
             <div class="hero-actions">
                 <a class="btn btn-primary" href="<?= e(url('/shop')) ?>">Shop now</a>

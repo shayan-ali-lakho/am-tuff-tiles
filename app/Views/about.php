@@ -10,7 +10,7 @@ $instagram = social_url('instagram');
 <section class="page-head">
     <div class="container">
         <h1>About <?= e($siteName) ?></h1>
-        <p class="page-head-sub">Quality building products for homes, shops and projects.</p>
+        <p class="page-head-sub"><?= e(site_description()) ?></p>
     </div>
 </section>
 
@@ -18,11 +18,10 @@ $instagram = social_url('instagram');
     <div class="container about-intro">
         <div class="about-text">
             <p class="eyebrow eyebrow-dark">Who we are</p>
-            <h2>Everything for your floors, doors, gates and roofs, in one place.</h2>
+            <h2>Tuff tiles, pavers and heat insulation tiles, in one place.</h2>
             <p>
-                <?= e($siteName) ?> supplies tuff tiles, doors, garden products, metal gates, roof ceilings
-                and more for homes, shops and building projects. Whether you are laying a new driveway,
-                fitting a gate or finishing a ceiling, you can find what you need here and order it online.
+                Whether you are laying a new driveway, covering a roof or finishing a wall, you can find what you
+                need here and order it online.
             </p>
             <p>
                 We keep ordering simple. Browse the shop, see clear prices in PKR, add what you need to your cart

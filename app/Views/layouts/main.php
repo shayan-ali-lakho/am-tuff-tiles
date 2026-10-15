@@ -1,8 +1,8 @@
 <?php
 /** @var string $content */
 $siteName = (string) config('app.name');
-$pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : 'Tuff Tiles, Doors & Metal Gates in Karachi | ' . $siteName;
-$pageDescription = $description ?? 'AM Tuff Tiles supplies tuff tiles, doors, garden products, metal gates and roof ceilings. Browse prices in PKR and order online, no account needed. Pay by EasyPaisa.';
+$pageTitle = ($title ?? '') !== '' ? $title . ' | ' . $siteName : 'Tuff Tiles, Fancy Pavers & Heat Insulation Tiles in Karachi | ' . $siteName;
+$pageDescription = $description ?? site_description();
 $seo = seo();
 $canonical = (string) ($seo['canonical'] ?? (site_url() . (current_path() === '/' ? '/' : current_path())));
 $ogImage = (string) ($seo['image'] ?? (site_url() . asset_path('img/og-default.jpg')));
@@ -42,7 +42,11 @@ $instagram = social_url('instagram');
     <?php foreach ($seo['jsonld'] ?? [] as $schema): ?>
     <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
     <?php endforeach; ?>
-    <link rel="icon" type="image/png" href="<?= e(asset('img/favicon.png')) ?>">
+    <link rel="icon" href="<?= e(site_url()) ?>/favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/png" sizes="48x48" href="<?= e(site_url() . asset_path('img/icon-48.png')) ?>">
+    <link rel="icon" type="image/png" sizes="96x96" href="<?= e(site_url() . asset_path('img/icon-96.png')) ?>">
+    <link rel="icon" type="image/png" sizes="192x192" href="<?= e(site_url() . asset_path('img/icon-192.png')) ?>">
+    <link rel="apple-touch-icon" href="<?= e(site_url() . asset_path('img/apple-touch-icon.png')) ?>">
     <script>document.documentElement.className += ' js';</script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -101,7 +105,7 @@ $instagram = social_url('instagram');
         <div class="container footer-inner">
             <div class="footer-col">
                 <p class="footer-brand"><?= e($siteName) ?></p>
-                <p class="footer-muted">Tuff tiles, doors, gardens, metal gates, roof ceilings and more.</p>
+                <p class="footer-muted"><?= e(site_description()) ?></p>
             </div>
 
             <nav class="footer-col" aria-label="Footer">
