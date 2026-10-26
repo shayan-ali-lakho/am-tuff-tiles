@@ -47,7 +47,7 @@ $instagram = social_url('instagram');
     <link rel="icon" type="image/png" sizes="96x96" href="<?= e(site_url() . asset_path('img/icon-96.png')) ?>">
     <link rel="icon" type="image/png" sizes="192x192" href="<?= e(site_url() . asset_path('img/icon-192.png')) ?>">
     <link rel="apple-touch-icon" href="<?= e(site_url() . asset_path('img/apple-touch-icon.png')) ?>">
-    <script>document.documentElement.className += ' js';</script>
+    <script>document.documentElement.className += ' js';try{if(!sessionStorage.getItem('am-loaded')){document.documentElement.className+=' has-loader';}}catch(e){document.documentElement.className+=' has-loader';}</script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,6 +55,20 @@ $instagram = social_url('instagram');
     <link rel="stylesheet" href="<?= e(asset('css/style.css')) ?>">
 </head>
 <body>
+    <div class="page-loader" id="page-loader" aria-hidden="true">
+        <div class="page-loader-inner">
+            <?php if ($logo !== null): ?><img class="page-loader-logo" src="<?= e($logo) ?>" alt="" width="88" height="88"><?php else: ?><span class="brand-mark page-loader-mark">AM</span><?php endif; ?>
+            <p class="page-loader-name"><?= e($siteName) ?></p>
+            <div class="page-loader-bar"><span></span></div>
+        </div>
+    </div>
+    <script>
+    (function(){var l=document.getElementById('page-loader'),d=false;
+    function done(){if(d)return;d=true;try{sessionStorage.setItem('am-loaded','1');}catch(e){}
+    if(l){l.className+=' is-done';setTimeout(function(){document.documentElement.className=document.documentElement.className.replace(' has-loader','');},500);}}
+    if(document.readyState==='complete'){setTimeout(done,600);}else{window.addEventListener('load',function(){setTimeout(done,600);});}
+    setTimeout(done,4000);})();
+    </script>
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">

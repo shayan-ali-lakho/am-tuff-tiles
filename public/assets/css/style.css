@@ -1490,3 +1490,25 @@ input[type="number"] { min-height: 46px; border: 1px solid var(--border-strong);
 @media (max-width: 560px) { .container { padding-left: 0.75rem; padding-right: 0.75rem; } }
 
 .pay-heading { margin: 1.25rem 0 0.75rem; font-size: 1.15rem; }
+
+/* ---- Advance payment note ---- */
+.pay-note-advance { margin: 0 0 1rem; border-left: 4px solid var(--bronze); background: #faf5ec; padding: .85rem 1rem; border-radius: var(--radius); line-height: 1.5; }
+.pay-note-advance strong:first-child { display: block; color: var(--forest); margin-bottom: .15rem; }
+
+/* ---- Opening loader (our own, shown once per visit once the page starts loading) ---- */
+.page-loader { display: none; }
+.has-loader .page-loader {
+    display: grid; place-items: center; position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg); opacity: 1; visibility: visible; transition: opacity .45s ease, visibility .45s ease;
+}
+.has-loader .page-loader.is-done { opacity: 0; visibility: hidden; }
+.page-loader-inner { display: grid; justify-items: center; gap: 1rem; text-align: center; }
+.page-loader-logo, .page-loader-mark { width: 88px; height: 88px; animation: loaderPulse 1.4s ease-in-out infinite; }
+.page-loader-name { margin: 0; font-family: var(--font-head); font-weight: 700; letter-spacing: .04em; color: var(--forest); }
+.page-loader-bar { width: 160px; height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.page-loader-bar span { display: block; height: 100%; width: 40%; background: var(--bronze); border-radius: 4px; animation: loaderSlide 1.1s ease-in-out infinite; }
+@keyframes loaderPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes loaderSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+@media (prefers-reduced-motion: reduce) {
+    .page-loader-logo, .page-loader-mark, .page-loader-bar span { animation: none; }
+}

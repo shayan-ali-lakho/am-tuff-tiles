@@ -133,6 +133,15 @@ function price_input(int $paisa): string
     return $paisa % 100 === 0 ? (string) intdiv($paisa, 100) : number_format($paisa / 100, 2, '.', '');
 }
 
+/** Share of the order total that must be paid in advance before an order is accepted. */
+const ADVANCE_PERCENT = 40;
+
+/** The smallest advance (in paisa) for an order total: 40%, rounded up. */
+function min_advance(int $totalPaisa): int
+{
+    return (int) ceil($totalPaisa * ADVANCE_PERCENT / 100);
+}
+
 /** EasyPaisa account details from the settings; the option is only offered at checkout when a number is set. */
 function easypaisa(): array
 {

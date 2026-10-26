@@ -140,8 +140,11 @@ final class CheckoutController
             $errors['payment_method'] = 'Online ordering is not available right now. Please call us to place your order.';
         } else {
             $amount = parse_price($in['paid_amount']);
+            $minimum = min_advance((int) $cart['total']);
             if ($amount === null || $amount < 100) {
-                $errors['paid_amount'] = 'Enter the amount you sent by EasyPaisa, for example 1500.';
+                $errors['paid_amount'] = 'Enter the amount you sent by EasyPaisa, at least ' . money($minimum) . '.';
+            } elseif ($amount < $minimum) {
+                $errors['paid_amount'] = 'An advance of at least ' . ADVANCE_PERCENT . '% (' . money($minimum) . ') must be paid before we can take your order.';
             } elseif ($amount > $cart['total']) {
                 $errors['paid_amount'] = 'The amount cannot be more than the order total (' . money($cart['total']) . ').';
             } else {

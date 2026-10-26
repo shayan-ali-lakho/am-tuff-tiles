@@ -8,6 +8,8 @@
  */
 $f = static fn (string $k): string => e($old[$k] ?? '');
 $totalInput = price_input((int) $cart['total']);
+$minAdvance = min_advance((int) $cart['total']);
+$minInput   = price_input($minAdvance);
 ?>
 <section class="page-head">
     <div class="container"><h1>Checkout</h1></div>
@@ -79,8 +81,13 @@ $totalInput = price_input((int) $cart['total']);
                                     <button class="btn btn-secondary btn-sm ep-copy js-only" type="button" data-copy="<?= e($easypaisa['number']) ?>">Copy number</button>
                                 </div>
 
+                                <div class="pay-note pay-note-advance" role="note">
+                                    <strong>Advance payment required.</strong>
+                                    To confirm your order, <?= e(ADVANCE_PERCENT) ?>% of the total (<strong><?= e(money($minAdvance)) ?></strong>) must be paid before you place it. Orders without the advance cannot be accepted. You pay the remaining balance when your order is delivered.
+                                </div>
+
                                 <ol class="ep-steps">
-                                    <li>Send the advance, or the full amount (<?= e(money($cart['total'])) ?>), to the EasyPaisa number above.</li>
+                                    <li>Send at least <?= e(ADVANCE_PERCENT) ?>% (<?= e(money($minAdvance)) ?>) or the full amount (<?= e(money($cart['total'])) ?>) to the EasyPaisa number above.</li>
                                     <li>Take a screenshot of the successful transaction.</li>
                                     <li>Enter the amount you sent and attach the screenshot below.</li>
                                 </ol>
@@ -88,7 +95,8 @@ $totalInput = price_input((int) $cart['total']);
                                 <div class="field">
                                     <label for="paid_amount">Amount you sent (PKR)</label>
                                     <div class="amount-row">
-                                        <input id="paid_amount" name="paid_amount" type="text" inputmode="decimal" autocomplete="off" maxlength="12" placeholder="e.g. 1500" value="<?= $f('paid_amount') ?>"<?= error_attrs($errors, 'paid_amount') ?>>
+                                        <input id="paid_amount" name="paid_amount" type="text" inputmode="decimal" autocomplete="off" maxlength="12" placeholder="At least <?= e($minInput) ?>" value="<?= $f('paid_amount') ?>"<?= error_attrs($errors, 'paid_amount') ?>>
+                                        <button class="btn btn-secondary btn-sm js-only" type="button" data-fill-amount="<?= e($minInput) ?>"><?= e(ADVANCE_PERCENT) ?>% advance</button>
                                         <button class="btn btn-secondary btn-sm js-only" type="button" data-fill-amount="<?= e($totalInput) ?>">Full amount</button>
                                     </div>
                                     <?= field_error($errors, 'paid_amount') ?>
